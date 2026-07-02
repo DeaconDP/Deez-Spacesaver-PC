@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Page
+    x:Class="Spacesaver.Pages.WelcomePage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:controls="using:Spacesaver.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d">
+
+    <controls:PageLayout>
+        <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+            <StackPanel Spacing="{StaticResource SpacingXL}">
+                <controls:PageHeader
+                    x:Name="PageHeaderControl"
+                    Subtitle="A guided disk cleanup helper for Windows — safe, transparent, and under your control."
+                    Title="Welcome to PC Spacesaver" />
+
+                <Border Style="{StaticResource CardBorderStyle}">
+                    <StackPanel Spacing="{StaticResource SpacingM}">
+                        <TextBlock Style="{StaticResource SectionHeaderTextBlockStyle}" Text="What this app does" />
+                        <TextBlock
+                            Style="{StaticResource PageSubtitleTextBlockStyle}"
+                            LineHeight="22"
+                            Text="• Scans your drive and ranks cleanup opportunities by impact and risk&#x0a;• Runs safe cleanups in-app after you confirm (Recycle Bin, old Temp files)&#x0a;• Opens built-in Windows tools for everything else — you stay in control&#x0a;• Guides you through 20 cleanup techniques with step-by-step instructions" />
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource CardBorderStyle}">
+                    <StackPanel Spacing="{StaticResource SpacingM}">
+                        <TextBlock Style="{StaticResource SectionHeaderTextBlockStyle}" Text="What it does not do" />
+                        <TextBlock
+                            Style="{StaticResource PageSubtitleTextBlockStyle}"
+                            LineHeight="22"
+                            Text="• Silently delete Downloads, browser data, or anything under C:\Windows&#x0a;• Request administrator elevation automatically&#x0a;• Recommend third-party registry cleaners or manual WinSxS deletion" />
+                    </StackPanel>
+                </Border>
+
+                <InfoBar
+                    IsClosable="False"
+                    IsOpen="True"
+                    Message="Safe actions run only after you review and confirm. Riskier actions open Windows tools so nothing is deleted without your approval."
+                    Severity="Informational"
+                    Title="Hybrid cleanup model" />
+
+                <Button
+                    x:Name="GetStartedButton"
+                    HorizontalAlignment="Stretch"
+                    Click="GetStarted_Click"
+                    Content="Get started"
+                    Style="{StaticResource AccentButtonStyle}" />
+            </StackPanel>
+        </ScrollViewer>
+    </controls:PageLayout>
+</Page>

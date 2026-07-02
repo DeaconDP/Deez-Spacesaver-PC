@@ -53,6 +53,7 @@ public sealed class RecommendationRowViewModel : INotifyPropertyChanged
     public Brush ImpactBrush { get; private set; } = ImpactLevelHelper.GetAccentBrush(ImpactLevel.Low);
     public Brush ImpactTintBrush { get; private set; } = ImpactLevelHelper.GetTintBrush(ImpactLevel.Low);
     public Brush RiskBrush { get; private set; } = RiskLevelHelper.GetBadgeBrush(RiskLevel.Safe);
+    public Brush RiskTintBrush { get; private set; } = RiskLevelHelper.GetBadgeTintBrush(RiskLevel.Safe);
 
     public Brush ExecutionForeground { get; private set; } =
         SemanticColorHelper.GetForegroundBrush(SemanticTone.Informative);
@@ -68,11 +69,13 @@ public sealed class RecommendationRowViewModel : INotifyPropertyChanged
         ImpactBrush = ImpactLevelHelper.GetAccentBrush(Recommendation.Impact);
         ImpactTintBrush = ImpactLevelHelper.GetTintBrush(Recommendation.Impact);
         RiskBrush = RiskLevelHelper.GetBadgeBrush(Task.RiskLevel);
+        RiskTintBrush = RiskLevelHelper.GetBadgeTintBrush(Task.RiskLevel);
         ExecutionForeground = SemanticColorHelper.GetForegroundBrush(
             SemanticColorHelper.ForExecutionMode(Recommendation.ExecutionMode));
         OnPropertyChanged(nameof(ImpactBrush));
         OnPropertyChanged(nameof(ImpactTintBrush));
         OnPropertyChanged(nameof(RiskBrush));
+        OnPropertyChanged(nameof(RiskTintBrush));
         OnPropertyChanged(nameof(ExecutionForeground));
     }
 

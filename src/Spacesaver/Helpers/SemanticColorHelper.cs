@@ -1,3 +1,4 @@
+using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Media;
 using Spacesaver.Models;
 
@@ -13,19 +14,35 @@ public enum SemanticTone
 
 public static class SemanticColorHelper
 {
-    public static Windows.UI.Color GoodAccent { get; } = Windows.UI.Color.FromArgb(255, 102, 187, 106);
-    public static Windows.UI.Color ImportantAccent { get; } = Windows.UI.Color.FromArgb(255, 255, 167, 38);
-    public static Windows.UI.Color AttentionAccent { get; } = Windows.UI.Color.FromArgb(255, 255, 213, 79);
-    public static Windows.UI.Color InformativeAccent { get; } = Windows.UI.Color.FromArgb(255, 100, 181, 246);
+    private static Windows.UI.Color ReadColor(string brushKey, Windows.UI.Color fallback)
+    {
+        if (Application.Current.Resources[brushKey] is SolidColorBrush brush)
+            return brush.Color;
+
+        return fallback;
+    }
+
+    public static Windows.UI.Color GoodAccent =>
+        ReadColor("SemanticGoodBrush", Windows.UI.Color.FromArgb(255, 102, 187, 106));
+
+    public static Windows.UI.Color ImportantAccent =>
+        ReadColor("SemanticImportantBrush", Windows.UI.Color.FromArgb(255, 255, 167, 38));
+
+    public static Windows.UI.Color AttentionAccent =>
+        ReadColor("SemanticAttentionBrush", Windows.UI.Color.FromArgb(255, 255, 213, 79));
+
+    public static Windows.UI.Color InformativeAccent =>
+        ReadColor("SemanticInformativeBrush", Windows.UI.Color.FromArgb(255, 100, 181, 246));
 
     public static Brush GetAccentBrush(SemanticTone tone) =>
-        new SolidColorBrush(GetAccentColor(tone));
+        Application.Current.Resources[GetAccentBrushKey(tone)] as Brush
+        ?? new SolidColorBrush(GetAccentColor(tone));
 
     public static Brush GetTintBrush(SemanticTone tone) =>
-        new SolidColorBrush(GetTintColor(tone));
+        Application.Current.Resources[GetTintBrushKey(tone)] as Brush
+        ?? new SolidColorBrush(GetTintColor(tone));
 
-    public static Brush GetForegroundBrush(SemanticTone tone) =>
-        new SolidColorBrush(GetAccentColor(tone));
+    public static Brush GetForegroundBrush(SemanticTone tone) => GetAccentBrush(tone);
 
     public static Windows.UI.Color GetAccentColor(SemanticTone tone) =>
         tone switch
@@ -42,6 +59,24 @@ public static class SemanticColorHelper
         var accent = GetAccentColor(tone);
         return Windows.UI.Color.FromArgb(28, accent.R, accent.G, accent.B);
     }
+
+    private static string GetAccentBrushKey(SemanticTone tone) =>
+        tone switch
+        {
+            SemanticTone.Good => "SemanticGoodBrush",
+            SemanticTone.Important => "SemanticImportantBrush",
+            SemanticTone.Attention => "SemanticAttentionBrush",
+            _ => "SemanticInformativeBrush"
+        };
+
+    private static string GetTintBrushKey(SemanticTone tone) =>
+        tone switch
+        {
+            SemanticTone.Good => "SemanticGoodTintBrush",
+            SemanticTone.Important => "SemanticImportantTintBrush",
+            SemanticTone.Attention => "SemanticAttentionTintBrush",
+            _ => "SemanticInformativeTintBrush"
+        };
 
     public static SemanticTone ForRiskLevel(RiskLevel level) =>
         level switch
@@ -94,6 +129,16 @@ public static class SemanticColorHelper
         : usedPercent >= 70 ? SemanticTone.Important
         : SemanticTone.Good;
 
+    public static SemanticTone ForFolderImportance(FolderImportance importance) =>
+        importance switch
+        {
+            FolderImportance.Critical => SemanticTone.Important,
+            FolderImportance.Important => SemanticTone.Informative,
+            FolderImportance.Reclaimable => SemanticTone.Good,
+            FolderImportance.Review => SemanticTone.Attention,
+            _ => SemanticTone.Informative
+        };
+
     public static SemanticTone ForProgress(int completed, int total)
     {
         if (total <= 0)
@@ -106,11 +151,10 @@ public static class SemanticColorHelper
             : SemanticTone.Informative;
     }
 
-    public static void ApplyCategoryAccent(Microsoft.UI.Xaml.Controls.Button button, TaskCategory category)
+    public static void ApplyCategoryTile(Microsoft.UI.Xaml.Controls.Button button, TaskCategory category)
     {
         var tone = ForTaskCategory(category);
         button.BorderBrush = GetAccentBrush(tone);
-        button.BorderThickness = new Microsoft.UI.Xaml.Thickness(3, 1, 1, 1);
         button.Background = GetTintBrush(tone);
     }
 
@@ -121,7 +165,7 @@ public static class SemanticColorHelper
     {
         border.Background = GetTintBrush(tone);
         border.BorderBrush = GetAccentBrush(tone);
-        border.BorderThickness = new Microsoft.UI.Xaml.Thickness(1);
+        border.BorderThickness = new Thickness(1);
         text.Foreground = GetForegroundBrush(tone);
     }
 }

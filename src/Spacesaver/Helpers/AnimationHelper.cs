@@ -34,6 +34,34 @@ public static class AnimationHelper
             AnimateVisual(element, hoverLift, hoverScale, HoverDurationSeconds);
     }
 
+    public static void ResetCompositionVisual(UIElement element)
+    {
+        var visual = ElementCompositionPreview.GetElementVisual(element);
+        visual.Opacity = 1f;
+        visual.Offset = Vector3.Zero;
+        visual.Scale = Vector3.One;
+    }
+
+    public static async Task PlayOpacityEntranceAsync(UIElement element, int delayMs = 0)
+    {
+        var visual = ElementCompositionPreview.GetElementVisual(element);
+        var compositor = visual.Compositor;
+
+        ResetCompositionVisual(element);
+        visual.Opacity = 0f;
+
+        if (delayMs > 0)
+            await Task.Delay(delayMs);
+
+        var opacity = compositor.CreateScalarKeyFrameAnimation();
+        opacity.InsertKeyFrame(1f, 1f, compositor.CreateCubicBezierEasingFunction(EaseOut, new Vector2(0.2f, 1f)));
+        opacity.Duration = TimeSpan.FromSeconds(EntranceDurationSeconds);
+
+        visual.StartAnimation("Opacity", opacity);
+        await Task.Delay(TimeSpan.FromSeconds(EntranceDurationSeconds));
+        visual.Opacity = 1f;
+    }
+
     public static async Task PlayEntranceAsync(
         UIElement element,
         int delayMs = 0,
@@ -42,6 +70,7 @@ public static class AnimationHelper
         var visual = ElementCompositionPreview.GetElementVisual(element);
         var compositor = visual.Compositor;
 
+        ResetCompositionVisual(element);
         visual.Opacity = 0f;
         visual.Offset = new Vector3(0, fromOffsetY, 0);
 
@@ -60,6 +89,9 @@ public static class AnimationHelper
         visual.StartAnimation("Offset", offset);
 
         await Task.Delay(TimeSpan.FromSeconds(EntranceDurationSeconds));
+
+        visual.Offset = Vector3.Zero;
+        visual.Opacity = 1f;
     }
 
     public static Task PlayStaggerEntranceAsync(IEnumerable<UIElement> elements, int staggerMs = 55) =>
@@ -150,4 +182,22 @@ public static class AnimationHelper
     }
 
     private static double EaseOutCubic(double t) => 1 - Math.Pow(1 - t, 3);
+
+    public static void WirePageLoaded(
+        Page page,
+        IEnumerable<UIElement> entranceElements,
+        IEnumerable<UIElement>? hoverElements = null,
+        float hoverScale = 1.015f)
+    {
+        page.Loaded += async (_, _) =>
+        {
+            await PlayStaggerEntranceAsync(entranceElements);
+
+            if (hoverElements is null)
+                return;
+
+            foreach (var element in hoverElements)
+                AttachHoverLift(element, hoverScale: hoverScale);
+        };
+    }
 }

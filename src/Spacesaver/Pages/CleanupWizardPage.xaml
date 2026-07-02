@@ -1,0 +1,408 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<Page
+
+    x:Class="Spacesaver.Pages.CleanupWizardPage"
+
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+
+    xmlns:controls="using:Spacesaver.Controls"
+
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+
+    mc:Ignorable="d">
+
+
+
+    <controls:PageLayout>
+
+        <Grid RowSpacing="{StaticResource SpacingL}">
+
+            <Grid.RowDefinitions>
+
+                <RowDefinition Height="Auto" />
+
+                <RowDefinition Height="Auto" />
+
+                <RowDefinition Height="*" />
+
+                <RowDefinition Height="Auto" />
+
+            </Grid.RowDefinitions>
+
+
+
+            <controls:PageHeader
+
+                x:Name="PageHeaderControl"
+
+                ShowProgressBar="True"
+
+                Subtitle="Scanning your drive…"
+
+                Title="Cleanup" />
+
+
+
+            <controls:StepIndicator
+                x:Name="StepIndicatorControl"
+                Grid.Row="1"
+                AutomationProperties.Name="Cleanup wizard progress" />
+
+
+
+            <ScrollViewer Grid.Row="2" HorizontalScrollBarVisibility="Disabled">
+
+                <StackPanel Spacing="{StaticResource SpacingL}">
+
+                    <StackPanel x:Name="ScanStepPanel" Spacing="{StaticResource SpacingM}">
+
+                        <controls:ScanStatusRow x:Name="ScanStatus" />
+
+                    </StackPanel>
+
+
+
+                    <StackPanel x:Name="ReviewStepPanel" Spacing="{StaticResource SpacingM}" Visibility="Collapsed">
+
+                        <Expander Header="How to read this list" IsExpanded="False">
+
+                            <TextBlock
+
+                                Margin="0,8,0,0"
+
+                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+
+                                Text="Green = safe and high value. Orange = important. Yellow = needs your attention. Blue = optional or informational. Safe deletions run in this app; other actions open Windows tools for you to confirm."
+
+                                TextWrapping="WrapWholeWords" />
+
+                        </Expander>
+
+
+
+                        <ListView
+
+                            x:Name="RecommendationsList"
+
+                            ItemContainerStyle="{StaticResource TransparentListViewItemStyle}"
+
+                            ItemContainerTransitions="{StaticResource StaggeredEntranceTransitions}"
+
+                            SelectionMode="None">
+
+                            <ListView.ItemTemplate>
+
+                                <DataTemplate>
+
+                                    <controls:ListCard
+
+                                        AccentBrush="{Binding ImpactBrush}"
+
+                                        TintBrush="{Binding ImpactTintBrush}">
+
+                                        <Grid ColumnSpacing="{StaticResource SpacingM}">
+
+                                            <Grid.ColumnDefinitions>
+
+                                                <ColumnDefinition Width="Auto" />
+
+                                                <ColumnDefinition Width="*" />
+
+                                            </Grid.ColumnDefinitions>
+
+
+
+                                            <CheckBox
+
+                                                VerticalAlignment="Top"
+
+                                                AutomationProperties.Name="{Binding Title}"
+
+                                                IsChecked="{Binding IsSelected, Mode=TwoWay}" />
+
+
+
+                                            <StackPanel Grid.Column="1" Spacing="{StaticResource SpacingS}">
+
+                                                <Grid ColumnSpacing="{StaticResource SpacingS}">
+
+                                                    <Grid.ColumnDefinitions>
+
+                                                        <ColumnDefinition Width="*" />
+
+                                                        <ColumnDefinition Width="Auto" />
+
+                                                    </Grid.ColumnDefinitions>
+
+
+
+                                                    <TextBlock
+
+                                                        FontSize="{StaticResource FontSizeBody}"
+
+                                                        FontWeight="SemiBold"
+
+                                                        Text="{Binding Title}"
+
+                                                        TextWrapping="WrapWholeWords" />
+
+
+
+                                                    <TextBlock
+
+                                                        Grid.Column="1"
+
+                                                        VerticalAlignment="Center"
+
+                                                        FontWeight="SemiBold"
+
+                                                        Foreground="{Binding ImpactBrush}"
+
+                                                        Text="{Binding FormattedSize}"
+
+                                                        Visibility="{Binding SizeVisibility}" />
+
+                                                </Grid>
+
+
+
+                                                <TextBlock
+
+                                                    Style="{StaticResource PageSubtitleTextBlockStyle}"
+
+                                                    Text="{Binding ScanDetail}" />
+
+
+
+                                                <StackPanel Orientation="Horizontal" Spacing="{StaticResource SpacingS}">
+
+                                                    <controls:SemanticChip
+
+                                                        AccentBrush="{Binding ImpactBrush}"
+
+                                                        Label="{Binding ImpactLabel}"
+
+                                                        TintBrush="{Binding ImpactTintBrush}" />
+
+                                                    <controls:SemanticChip
+
+                                                        AccentBrush="{Binding RiskBrush}"
+
+                                                        Label="{Binding RiskLabel}"
+
+                                                        TintBrush="{Binding RiskTintBrush}" />
+
+                                                    <TextBlock
+
+                                                        VerticalAlignment="Center"
+
+                                                        FontSize="{StaticResource FontSizeCaption}"
+
+                                                        FontWeight="SemiBold"
+
+                                                        Foreground="{Binding ExecutionForeground}"
+
+                                                        Text="{Binding ExecutionLabel}" />
+
+                                                </StackPanel>
+
+
+
+                                                <TextBlock
+
+                                                    Style="{StaticResource DetailTextBlockStyle}"
+
+                                                    Text="{Binding RiskSummary}" />
+
+
+
+                                                <HyperlinkButton
+
+                                                    Click="LearnMore_Click"
+
+                                                    Content="Learn more"
+
+                                                    Tag="{Binding TaskId}" />
+
+                                            </StackPanel>
+
+                                        </Grid>
+
+                                    </controls:ListCard>
+
+                                </DataTemplate>
+
+                            </ListView.ItemTemplate>
+
+                        </ListView>
+
+                    </StackPanel>
+
+
+
+                    <StackPanel x:Name="ConfirmStepPanel" Spacing="{StaticResource SpacingM}" Visibility="Collapsed">
+
+                        <TextBlock
+
+                            Style="{StaticResource PageSubtitleTextBlockStyle}"
+
+                            Text="Review your selected actions below, then confirm to continue."
+
+                            TextWrapping="WrapWholeWords" />
+
+                        <Border x:Name="ConfirmSummaryBorder" Style="{StaticResource CardBorderStyle}">
+
+                            <StackPanel x:Name="ConfirmSummaryPanel" Spacing="{StaticResource SpacingS}" />
+
+                        </Border>
+
+                        <CheckBox
+
+                            x:Name="RiskAckCheckbox"
+
+                            AutomationProperties.Name="Risk acknowledgment"
+
+                            Content="I have read the risks and want to continue" />
+
+                        <InfoBar
+
+                            x:Name="AdvancedWarningBar"
+
+                            IsClosable="False"
+
+                            IsOpen="False"
+
+                            Severity="Error"
+
+                            Title="Advanced actions selected"
+
+                            Message="These cannot be undone automatically. You will complete them in Windows and must confirm each step yourself." />
+
+                    </StackPanel>
+
+
+
+                    <StackPanel x:Name="ResultsStepPanel" Spacing="{StaticResource SpacingM}" Visibility="Collapsed">
+
+                        <Border Style="{StaticResource CardBorderStyle}">
+
+                            <StackPanel Spacing="{StaticResource SpacingM}">
+
+                                <TextBlock
+
+                                    x:Name="ResultsSummaryText"
+
+                                    FontSize="{StaticResource FontSizeSection}"
+
+                                    FontWeight="SemiBold"
+
+                                    Text="Cleanup complete" />
+
+                                <StackPanel x:Name="ResultsDetailPanel" Spacing="{StaticResource SpacingS}" />
+
+                            </StackPanel>
+
+                        </Border>
+
+                    </StackPanel>
+
+                </StackPanel>
+
+            </ScrollViewer>
+
+
+
+            <Border
+
+                Grid.Row="3"
+
+                Padding="{StaticResource SettingsCardPadding}"
+
+                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+
+                BorderThickness="1"
+
+                CornerRadius="{StaticResource CornerRadiusControl}">
+
+                <Grid ColumnSpacing="{StaticResource SpacingM}">
+
+                    <Grid.ColumnDefinitions>
+
+                        <ColumnDefinition Width="*" />
+
+                        <ColumnDefinition Width="Auto" />
+
+                        <ColumnDefinition Width="Auto" />
+
+                    </Grid.ColumnDefinitions>
+
+
+
+                    <StackPanel VerticalAlignment="Center" Spacing="{StaticResource SpacingXS}">
+
+                        <TextBlock
+
+                            x:Name="FooterSummaryText"
+
+                            FontWeight="SemiBold"
+
+                            Text="Scanning…" />
+
+                        <TextBlock
+
+                            x:Name="FooterStatusText"
+
+                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+
+                            TextWrapping="WrapWholeWords"
+
+                            Visibility="Collapsed" />
+
+                    </StackPanel>
+
+
+
+                    <Button
+
+                        x:Name="BackButton"
+
+                        Grid.Column="1"
+
+                        Click="BackButton_Click"
+
+                        Content="Back"
+
+                        Visibility="Collapsed" />
+
+                    <Button
+
+                        x:Name="NextButton"
+
+                        Grid.Column="2"
+
+                        Click="NextButton_Click"
+
+                        Content="Next"
+
+                        IsEnabled="False"
+
+                        Style="{StaticResource AccentButtonStyle}" />
+
+                </Grid>
+
+            </Border>
+
+        </Grid>
+
+    </controls:PageLayout>
+
+</Page>
+
+

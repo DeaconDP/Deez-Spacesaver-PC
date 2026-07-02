@@ -30,10 +30,6 @@ project.fragment.lock.json
 artifacts/
 dist/
 
-# Published one-click exe is rebuilt via publish.ps1; omit from git (large binary).
-/PC-Spacesaver.exe
-/PC-Spacesaver.pdb
-
 *.appx
 *.appxbundle
 *.appxupload

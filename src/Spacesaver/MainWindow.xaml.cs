@@ -1,9 +1,8 @@
 using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
-using Spacesaver.Helpers;
-using Spacesaver.Models;
 using Spacesaver.Pages;
+using Spacesaver.Services;
 
 namespace Spacesaver;
 
@@ -17,8 +16,9 @@ public sealed partial class MainWindow : Window
 
         ExtendsContentIntoTitleBar = true;
         SetTitleBar(AppTitleBar);
-        AppWindow.TitleBar.PreferredHeightOption = TitleBarHeightOption.Tall;
         AppWindow.SetIcon("Assets/AppIcon.ico");
+
+        NavigationService.Instance.Initialize(NavView, NavFrame);
     }
 
     private void NavView_Loaded(object sender, RoutedEventArgs e)
@@ -26,9 +26,15 @@ public sealed partial class MainWindow : Window
         if (_initialNavigationDone)
             return;
 
+        if (!AppServices.Settings.HasCompletedOnboarding)
+        {
+            _initialNavigationDone = true;
+            NavFrame.Navigate(typeof(WelcomePage));
+            return;
+        }
+
         _initialNavigationDone = true;
-        NavView.SelectedItem = NavView.MenuItems[0];
-        NavFrame.Navigate(typeof(HomePage));
+        NavigationService.Instance.Navigate(typeof(DashboardPage), null, "dashboard");
     }
 
     private void TitleBar_PaneToggleRequested(TitleBar sender, object args)
@@ -45,6 +51,13 @@ public sealed partial class MainWindow : Window
     private void NavFrame_Navigated(object sender, Microsoft.UI.Xaml.Navigation.NavigationEventArgs e)
     {
         AppTitleBar.IsBackButtonVisible = NavFrame.CanGoBack;
+
+        if (e.SourcePageType is Type pageType)
+        {
+            var tag = NavigationService.GetTagForPageType(pageType);
+            if (tag is not null)
+                NavigationService.Instance.SyncNavSelection(tag);
+        }
     }
 
     private void NavView_SelectionChanged(NavigationView sender, NavigationViewSelectionChangedEventArgs args)
@@ -52,51 +65,23 @@ public sealed partial class MainWindow : Window
         if (!_initialNavigationDone)
             return;
 
+        if (!NavigationService.Instance.ShouldHandleSelectionChanged())
+            return;
+
         if (args.IsSettingsSelected)
         {
-            NavFrame.Navigate(typeof(SettingsPage));
+            NavigationService.Instance.Navigate(typeof(SettingsPage), null, "settings");
             return;
         }
 
         if (args.SelectedItem is not NavigationViewItem item)
             return;
 
-        switch (item.Tag)
-        {
-            case "home":
-                NavFrame.Navigate(typeof(HomePage));
-                break;
-            case "all-tasks":
-                NavFrame.Navigate(typeof(TaskListPage), new TaskListNavigationArgs { Title = "All Tasks" });
-                break;
-            case "quick-wins":
-                NavFrame.Navigate(typeof(TaskListPage), new TaskListNavigationArgs
-                {
-                    Category = TaskCategory.QuickWins,
-                    Title = "Quick Wins"
-                });
-                break;
-            case "system-cleanup":
-                NavFrame.Navigate(typeof(TaskListPage), new TaskListNavigationArgs
-                {
-                    Category = TaskCategory.SystemCleanup,
-                    Title = "System Cleanup"
-                });
-                break;
-            case "large-wins":
-                NavFrame.Navigate(typeof(TaskListPage), new TaskListNavigationArgs
-                {
-                    Category = TaskCategory.LargeSpaceWins,
-                    Title = "Large Space Wins"
-                });
-                break;
-            case "manual-review":
-                NavFrame.Navigate(typeof(TaskListPage), new TaskListNavigationArgs
-                {
-                    Category = TaskCategory.ManualReview,
-                    Title = "Manual Review"
-                });
-                break;
-        }
+        var tag = item.Tag as string;
+        var pageType = NavigationService.GetPageTypeForTag(tag ?? string.Empty);
+        if (pageType is null)
+            return;
+
+        NavigationService.Instance.Navigate(pageType, null, tag);
     }
 }

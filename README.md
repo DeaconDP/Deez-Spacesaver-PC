@@ -1,38 +1,29 @@
 # PC Spacesaver
 
-Guided Windows disk cleanup app. Double-click **PC-Spacesaver.exe** to run — no install, no .NET download, no extra folders.
+Guided Windows disk cleanup app.
 
 ## Quick start
 
-1. Download or clone this folder.
-2. Double-click **`PC-Spacesaver.exe`** in this directory.
-3. Click **Scan for Recommendations** to analyze your drive, or follow the checklist manually.
-
-First launch may take a few seconds while the app unpacks bundled runtime files to a temp folder. Later launches are faster.
+1. Clone this repo and install the [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0).
+2. Double-click **`run.bat`** (or run `dotnet run --project src\Spacesaver\Spacesaver.csproj`).
+3. Complete the welcome screen, then use **Dashboard** → **Start cleanup wizard** to analyze your drive, or browse **Tasks** manually.
 
 ## Requirements
 
 - Windows 10 version 1809 or later (Windows 11 recommended)
 - 64-bit (x64) PC
+- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) and the Windows application development workload (Visual Studio 2022) or Windows App SDK
 
 ## What it includes
 
-- **Scan for Recommendations** — measures reclaimable space and lets you choose what to apply
+- **Cleanup wizard** — scan → review → confirm → apply in four guided steps
+- **Dashboard** — drive usage summary, progress tracking, and category shortcuts
+- **Storage explorer** — folder size drill-down (analyze only, nothing deleted)
 - **20 cleanup techniques** across Quick Wins, System Cleanup, Large Space Wins, and Manual Review
 - **Step-by-step guidance** with warnings for risky options
 - **One-click tool launchers** for Storage Sense, Disk Cleanup, System Properties, and more
 - **Progress tracking** saved in `%LocalAppData%\PCSpacesaver`
-- **Dark mode** UI
-
-## Rebuild the exe (developers)
-
-Requires [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) and the Windows application development workload (Visual Studio 2022) or Windows App SDK.
-
-```powershell
-.\publish.ps1
-```
-
-This writes `PC-Spacesaver.exe` to the project root as a self-contained single file.
+- **System, light, or dark theme** (Settings → Appearance)
 
 ## Safety
 

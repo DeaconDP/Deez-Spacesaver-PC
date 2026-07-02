@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ContentControl
+    x:Class="Spacesaver.Controls.ListCard"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    HorizontalAlignment="Stretch"
+    HorizontalContentAlignment="Stretch"
+    VerticalAlignment="Top"
+    VerticalContentAlignment="Top"
+    mc:Ignorable="d">
+    <ContentControl.Template>
+        <ControlTemplate TargetType="ContentControl">
+            <Border
+                Background="{Binding TintBrush, RelativeSource={RelativeSource Mode=TemplatedParent}}"
+                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                BorderThickness="1"
+                CornerRadius="{StaticResource CornerRadiusControl}">
+                <Grid>
+                    <Border
+                        Width="4"
+                        HorizontalAlignment="Left"
+                        Background="{Binding AccentBrush, RelativeSource={RelativeSource Mode=TemplatedParent}}"
+                        CornerRadius="8,0,0,8" />
+                    <ContentPresenter
+                        Margin="16,12"
+                        HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                        VerticalAlignment="Top"
+                        Content="{TemplateBinding Content}"
+                        ContentTemplate="{TemplateBinding ContentTemplate}" />
+                </Grid>
+            </Border>
+        </ControlTemplate>
+    </ContentControl.Template>
+</ContentControl>

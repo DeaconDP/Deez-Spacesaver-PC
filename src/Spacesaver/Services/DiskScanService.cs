@@ -1,3 +1,4 @@
+using Spacesaver.Helpers;
 using Spacesaver.Models;
 
 namespace Spacesaver.Services;
@@ -33,23 +34,23 @@ public sealed class DiskScanService
         progress?.Report("Scanning Recycle Bin…");
         cancellationToken.ThrowIfCancellationRequested();
         AddMeasured(recommendations, "recycle-bin", MeasureRecycleBinBytes(), ExecutionMode.AutoClean,
-            bytes => $"Found {FormatBytes(bytes)} in Recycle Bin.");
+            bytes => $"Found {FileSystemHelper.FormatBytes(bytes)} in Recycle Bin.");
 
         progress?.Report("Scanning user Temp folder…");
         cancellationToken.ThrowIfCancellationRequested();
-        AddMeasured(recommendations, "user-temp", MeasureDirectoryBytes(Environment.GetEnvironmentVariable("TEMP")),
-            ExecutionMode.AutoClean, bytes => $"Found {FormatBytes(bytes)} in your Temp folder.");
+        AddMeasured(recommendations, "user-temp", FileSystemHelper.MeasureDirectoryBytes(Environment.GetEnvironmentVariable("TEMP")),
+            ExecutionMode.AutoClean, bytes => $"Found {FileSystemHelper.FormatBytes(bytes)} in your Temp folder.");
 
         progress?.Report("Checking for Windows.old…");
         cancellationToken.ThrowIfCancellationRequested();
-        AddMeasured(recommendations, "windows-old", MeasureDirectoryBytes(@"C:\Windows.old"),
-            ExecutionMode.LaunchTool, bytes => $"Previous Windows installation uses {FormatBytes(bytes)}.",
+        AddMeasured(recommendations, "windows-old", FileSystemHelper.MeasureDirectoryBytes(@"C:\Windows.old"),
+            ExecutionMode.LaunchTool, bytes => $"Previous Windows installation uses {FileSystemHelper.FormatBytes(bytes)}.",
             forceHighImpact: true);
 
         progress?.Report("Checking hibernation file…");
         cancellationToken.ThrowIfCancellationRequested();
         AddMeasured(recommendations, "hibernation", MeasureFileBytes(@"C:\hiberfil.sys"),
-            ExecutionMode.ManualOnly, bytes => $"Hibernation file uses {FormatBytes(bytes)}.",
+            ExecutionMode.ManualOnly, bytes => $"Hibernation file uses {FileSystemHelper.FormatBytes(bytes)}.",
             forceHighImpact: true);
 
         progress?.Report("Scanning delivery optimization cache…");
@@ -57,19 +58,19 @@ public sealed class DiskScanService
         var deliveryPath = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.Windows),
             @"ServiceProfiles\NetworkService\AppData\Local\Microsoft\Windows\DeliveryOptimization\Cache");
-        AddMeasured(recommendations, "delivery-optimization", MeasureDirectoryBytes(deliveryPath),
-            ExecutionMode.LaunchTool, bytes => $"Delivery optimization cache is {FormatBytes(bytes)}.");
+        AddMeasured(recommendations, "delivery-optimization", FileSystemHelper.MeasureDirectoryBytes(deliveryPath),
+            ExecutionMode.LaunchTool, bytes => $"Delivery optimization cache is {FileSystemHelper.FormatBytes(bytes)}.");
 
         progress?.Report("Scanning browser caches…");
         cancellationToken.ThrowIfCancellationRequested();
         AddMeasured(recommendations, "browser-cache", MeasureBrowserCacheBytes(),
-            ExecutionMode.LaunchTool, bytes => $"Browser caches total {FormatBytes(bytes)}.");
+            ExecutionMode.LaunchTool, bytes => $"Browser caches total {FileSystemHelper.FormatBytes(bytes)}.");
 
         progress?.Report("Scanning Downloads folder…");
         cancellationToken.ThrowIfCancellationRequested();
         var downloadsPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "Downloads");
-        AddMeasured(recommendations, "downloads", MeasureDirectoryBytes(downloadsPath),
-            ExecutionMode.ManualOnly, bytes => $"Downloads folder contains {FormatBytes(bytes)} — review before deleting.");
+        AddMeasured(recommendations, "downloads", FileSystemHelper.MeasureDirectoryBytes(downloadsPath),
+            ExecutionMode.ManualOnly, bytes => $"Downloads folder contains {FileSystemHelper.FormatBytes(bytes)} — review before deleting.");
 
         if (usedPercent >= DiskPressureThreshold)
         {
@@ -201,10 +202,10 @@ public sealed class DiskScanService
             {
                 var userBin = Path.Combine(recycleRoot, userSid);
                 if (Directory.Exists(userBin))
-                    return MeasureDirectoryBytes(userBin);
+                    return FileSystemHelper.MeasureDirectoryBytes(userBin);
             }
 
-            return MeasureDirectoryBytes(recycleRoot);
+            return FileSystemHelper.MeasureDirectoryBytes(recycleRoot);
         }
         catch
         {
@@ -238,7 +239,7 @@ public sealed class DiskScanService
         };
 
         foreach (var path in edgePaths)
-            total += MeasureDirectoryBytes(path);
+            total += FileSystemHelper.MeasureDirectoryBytes(path);
 
         var chromePaths = new[]
         {
@@ -248,7 +249,7 @@ public sealed class DiskScanService
         };
 
         foreach (var path in chromePaths)
-            total += MeasureDirectoryBytes(path);
+            total += FileSystemHelper.MeasureDirectoryBytes(path);
 
         return total;
     }
@@ -265,51 +266,5 @@ public sealed class DiskScanService
         }
     }
 
-    private static long MeasureDirectoryBytes(string? path)
-    {
-        if (string.IsNullOrWhiteSpace(path) || !Directory.Exists(path))
-            return 0;
-
-        long total = 0;
-        try
-        {
-            foreach (var file in Directory.EnumerateFiles(path, "*", SearchOption.AllDirectories))
-            {
-                try
-                {
-                    total += new FileInfo(file).Length;
-                }
-                catch
-                {
-                    // Skip inaccessible files.
-                }
-            }
-        }
-        catch
-        {
-            // Skip inaccessible directories.
-        }
-
-        return total;
-    }
-
-    public static string FormatBytes(long bytes)
-    {
-        if (bytes < 1024)
-            return $"{bytes} B";
-
-        double value = bytes;
-        string[] units = ["KB", "MB", "GB", "TB"];
-        var unitIndex = 0;
-
-        while (value >= 1024 && unitIndex < units.Length - 1)
-        {
-            value /= 1024;
-            unitIndex++;
-        }
-
-        return unitIndex <= 1
-            ? $"{value:0} {units[unitIndex]}"
-            : $"{value:0.##} {units[unitIndex]}";
-    }
+    public static string FormatBytes(long bytes) => FileSystemHelper.FormatBytes(bytes);
 }
