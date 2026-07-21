@@ -7,90 +7,109 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <ScrollViewer>
-        <StackPanel Padding="32,24,32,32" Spacing="20">
-            <StackPanel x:Name="TaskHeaderPanel" Spacing="8">
-                <TextBlock
-                    x:Name="TaskNumberText"
-                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                    Text="Task #1" />
-                <TextBlock
-                    x:Name="TitleText"
-                    FontSize="28"
-                    FontWeight="SemiBold"
-                    Text="Task title"
-                    TextWrapping="WrapWholeWords" />
-                <TextBlock
-                    x:Name="DescriptionText"
-                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                    Text="Description"
-                    TextWrapping="WrapWholeWords" />
-                <StackPanel Orientation="Horizontal" Spacing="12">
-                    <Border
-                        x:Name="SavingsBorder"
-                        Padding="10,4"
-                        Background="{ThemeResource ControlFillColorDefaultBrush}"
-                        CornerRadius="4">
-                        <TextBlock x:Name="SavingsText" Text="1–5 GB" />
-                    </Border>
-                    <Border
-                        x:Name="RiskBorder"
-                        Padding="10,4"
-                        Background="{ThemeResource ControlFillColorDefaultBrush}"
-                        CornerRadius="4">
-                        <TextBlock x:Name="RiskText" Text="Safe" />
-                    </Border>
-                    <Border
-                        x:Name="CategoryBorder"
-                        Padding="10,4"
-                        Background="{ThemeResource ControlFillColorDefaultBrush}"
-                        CornerRadius="4">
-                        <TextBlock x:Name="CategoryText" Text="Quick Wins" />
-                    </Border>
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+        <Grid
+            x:Name="PageRoot"
+            MaxWidth="{StaticResource PageContentMaxWidth}"
+            HorizontalAlignment="Stretch"
+            Padding="{StaticResource PagePaddingWide}"
+            SizeChanged="PageRoot_SizeChanged">
+            <VisualStateManager.VisualStateGroups>
+                <VisualStateGroup x:Name="WindowSizeStates">
+                    <VisualState x:Name="Wide">
+                        <VisualState.StateTriggers>
+                            <AdaptiveTrigger MinWindowWidth="900" />
+                        </VisualState.StateTriggers>
+                        <VisualState.Setters>
+                            <Setter Target="PageRoot.Padding" Value="{StaticResource PagePaddingWide}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                    <VisualState x:Name="Narrow">
+                        <VisualState.StateTriggers>
+                            <AdaptiveTrigger MinWindowWidth="0" />
+                        </VisualState.StateTriggers>
+                        <VisualState.Setters>
+                            <Setter Target="PageRoot.Padding" Value="{StaticResource PagePaddingNarrow}" />
+                            <Setter Target="TitleText.FontSize" Value="24" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateManager.VisualStateGroups>
+
+            <StackPanel Spacing="20">
+                <StackPanel x:Name="TaskHeaderPanel" Spacing="8">
+                    <TextBlock
+                        x:Name="TaskNumberText"
+                        Style="{StaticResource MetaTextStyle}"
+                        Text="Task #1" />
+                    <TextBlock
+                        x:Name="TitleText"
+                        Style="{StaticResource TitleTextStyle}"
+                        Text="Task title" />
+                    <TextBlock
+                        x:Name="DescriptionText"
+                        Style="{StaticResource BodyTextStyle}"
+                        Text="Description" />
+                    <StackPanel x:Name="ChipPanel" Orientation="Horizontal" Spacing="8">
+                        <Border x:Name="SavingsBorder" Style="{StaticResource MetaChipBorderStyle}">
+                            <TextBlock x:Name="SavingsText" Text="1–5 GB" />
+                        </Border>
+                        <Border x:Name="RiskBorder" Style="{StaticResource MetaChipBorderStyle}">
+                            <TextBlock x:Name="RiskText" Text="Safe" />
+                        </Border>
+                        <Border x:Name="CategoryBorder" Style="{StaticResource MetaChipBorderStyle}">
+                            <TextBlock x:Name="CategoryText" Text="Quick Wins" />
+                        </Border>
+                    </StackPanel>
                 </StackPanel>
-            </StackPanel>
 
-            <InfoBar
-                x:Name="AdminInfoBar"
-                IsClosable="False"
-                IsOpen="False"
-                Message="This step requires Administrator privileges. Run the opened tool as admin when prompted."
-                Severity="Warning"
-                Title="Administrator required" />
+                <InfoBar
+                    x:Name="AdminInfoBar"
+                    IsClosable="False"
+                    IsOpen="False"
+                    Message="This step requires Administrator privileges. Run the opened tool as admin when prompted."
+                    Severity="Warning"
+                    Title="Administrator required" />
 
-            <InfoBar
-                x:Name="WarningInfoBar"
-                IsClosable="False"
-                IsOpen="False"
-                Severity="Error"
-                Title="Read before proceeding" />
+                <InfoBar
+                    x:Name="WarningInfoBar"
+                    IsClosable="False"
+                    IsOpen="False"
+                    Severity="Error"
+                    Title="Read before proceeding" />
 
-            <StackPanel x:Name="StepsPanel" Spacing="12">
+                <StackPanel x:Name="StepsPanel" Spacing="12">
+                    <TextBlock Style="{StaticResource SectionTitleTextStyle}" Text="Steps" />
+                    <ItemsControl x:Name="StepsList" />
+                </StackPanel>
+
+                <StackPanel x:Name="ActionPanel" Orientation="Horizontal" Spacing="12">
+                    <Button
+                        x:Name="OpenToolButton"
+                        HorizontalAlignment="Left"
+                        Click="OpenToolButton_Click"
+                        Content="Open Tool"
+                        Style="{StaticResource PrimaryActionButtonStyle}" />
+                    <Button
+                        x:Name="CopyCommandButton"
+                        HorizontalAlignment="Left"
+                        Click="CopyCommandButton_Click"
+                        Content="Copy Command"
+                        Style="{StaticResource SecondaryActionButtonStyle}"
+                        Visibility="Collapsed" />
+                </StackPanel>
+
                 <TextBlock
-                    FontSize="18"
-                    FontWeight="SemiBold"
-                    Text="Steps" />
-                <ItemsControl x:Name="StepsList" />
-            </StackPanel>
-
-            <StackPanel x:Name="ActionPanel" Orientation="Horizontal" Spacing="12">
-                <Button
-                    x:Name="OpenToolButton"
-                    Click="OpenToolButton_Click"
-                    Content="Open Tool"
-                    Style="{StaticResource AccentButtonStyle}" />
-                <Button
-                    x:Name="CopyCommandButton"
-                    Click="CopyCommandButton_Click"
-                    Content="Copy Command"
+                    x:Name="ActionStatusText"
+                    Style="{StaticResource MetaTextStyle}"
                     Visibility="Collapsed" />
-            </StackPanel>
 
-            <ToggleSwitch
-                x:Name="DoneToggle"
-                OffContent="Mark as not done"
-                OnContent="Marked as done"
-                Toggled="DoneToggle_Toggled" />
-        </StackPanel>
+                <ToggleSwitch
+                    x:Name="DoneToggle"
+                    OffContent="Mark as not done"
+                    OnContent="Marked as done"
+                    Toggled="DoneToggle_Toggled" />
+            </StackPanel>
+        </Grid>
     </ScrollViewer>
 </Page>

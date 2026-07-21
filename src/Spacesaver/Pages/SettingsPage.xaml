@@ -7,65 +7,77 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <ScrollViewer>
-        <StackPanel Padding="32,24,32,32" Spacing="24">
-            <StackPanel x:Name="HeaderPanel" Spacing="8">
-                <TextBlock
-                    FontSize="28"
-                    FontWeight="SemiBold"
-                    Text="Settings" />
-                <TextBlock
-                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                    Text="Manage your cleanup checklist progress."
-                    TextWrapping="WrapWholeWords" />
-            </StackPanel>
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+        <Grid
+            x:Name="PageRoot"
+            MaxWidth="{StaticResource PageContentMaxWidth}"
+            HorizontalAlignment="Stretch"
+            Padding="{StaticResource PagePaddingWide}">
+            <VisualStateManager.VisualStateGroups>
+                <VisualStateGroup x:Name="WindowSizeStates">
+                    <VisualState x:Name="Wide">
+                        <VisualState.StateTriggers>
+                            <AdaptiveTrigger MinWindowWidth="900" />
+                        </VisualState.StateTriggers>
+                        <VisualState.Setters>
+                            <Setter Target="PageRoot.Padding" Value="{StaticResource PagePaddingWide}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                    <VisualState x:Name="Narrow">
+                        <VisualState.StateTriggers>
+                            <AdaptiveTrigger MinWindowWidth="0" />
+                        </VisualState.StateTriggers>
+                        <VisualState.Setters>
+                            <Setter Target="PageRoot.Padding" Value="{StaticResource PagePaddingNarrow}" />
+                            <Setter Target="HeaderTitle.FontSize" Value="24" />
+                            <Setter Target="ResetButton.HorizontalAlignment" Value="Stretch" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateManager.VisualStateGroups>
 
-            <Border
-                x:Name="ProgressCard"
-                Padding="20"
-                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                BorderThickness="1"
-                CornerRadius="12">
-                <StackPanel Spacing="16">
+            <StackPanel Spacing="32">
+                <StackPanel x:Name="HeaderPanel" Spacing="8">
                     <TextBlock
-                        FontSize="16"
-                        FontWeight="SemiBold"
-                        Text="Progress" />
+                        x:Name="HeaderTitle"
+                        Style="{StaticResource TitleTextStyle}"
+                        Text="Settings" />
+                    <TextBlock
+                        Style="{StaticResource BodyTextStyle}"
+                        Text="Manage your cleanup checklist progress." />
+                </StackPanel>
+
+                <StackPanel x:Name="ProgressSection" Spacing="12">
+                    <TextBlock Style="{StaticResource SectionTitleTextStyle}" Text="Progress" />
                     <TextBlock
                         x:Name="ProgressSummaryText"
-                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                        Style="{StaticResource BodyTextStyle}"
                         Text="0 of 20 tasks marked complete" />
                     <Button
+                        x:Name="ResetButton"
+                        HorizontalAlignment="Left"
                         Click="ResetProgress_Click"
-                        Content="Reset all progress" />
-                </StackPanel>
-            </Border>
-
-            <Border
-                x:Name="SafetyCard"
-                Padding="20"
-                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                BorderThickness="1"
-                CornerRadius="12">
-                <StackPanel Spacing="12">
+                        Content="Reset all progress"
+                        Style="{StaticResource SecondaryActionButtonStyle}" />
                     <TextBlock
-                        FontSize="16"
-                        FontWeight="SemiBold"
+                        x:Name="ResetStatusText"
+                        Style="{StaticResource MetaTextStyle}"
+                        Visibility="Collapsed" />
+                </StackPanel>
+
+                <StackPanel x:Name="SafetySection" Spacing="12">
+                    <TextBlock
+                        Style="{StaticResource SectionTitleTextStyle}"
                         Text="What this app does not recommend" />
                     <TextBlock
-                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                        LineHeight="22"
-                        Text="• Third-party registry cleaners or &quot;PC optimizer&quot; tools&#x0a;• Manually deleting C:\Windows\WinSxS&#x0a;• Deleting C:\Windows\Prefetch&#x0a;• Bulk-deleting Downloads without reviewing contents"
-                        TextWrapping="WrapWholeWords" />
+                        Style="{StaticResource BodyTextStyle}"
+                        Text="• Third-party registry cleaners or &quot;PC optimizer&quot; tools&#x0a;• Manually deleting C:\Windows\WinSxS&#x0a;• Deleting C:\Windows\Prefetch&#x0a;• Bulk-deleting Downloads without reviewing contents" />
                 </StackPanel>
-            </Border>
 
-            <TextBlock
-                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                Text="PC Spacesaver v1.0 · Guided cleanup using built-in Windows tools"
-                TextWrapping="WrapWholeWords" />
-        </StackPanel>
+                <TextBlock
+                    Style="{StaticResource MetaTextStyle}"
+                    Text="PC Spacesaver v1.0 · Guided cleanup using built-in Windows tools" />
+            </StackPanel>
+        </Grid>
     </ScrollViewer>
 </Page>

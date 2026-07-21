@@ -57,6 +57,27 @@ public sealed partial class RecommendationsPage : Page
         _ = RunScanAsync();
     }
 
+    private void PageRoot_SizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        var narrow = e.NewSize.Width < 560;
+        if (narrow)
+        {
+            Grid.SetColumn(ApplyButton, 0);
+            Grid.SetRow(ApplyButton, 1);
+            ApplyButton.HorizontalAlignment = HorizontalAlignment.Stretch;
+        }
+        else
+        {
+            Grid.SetColumn(ApplyButton, 1);
+            Grid.SetRow(ApplyButton, 0);
+            ApplyButton.HorizontalAlignment = HorizontalAlignment.Right;
+        }
+
+        LegendInfoBar.Visibility = e.NewSize.Width < 480
+            ? Visibility.Collapsed
+            : Visibility.Visible;
+    }
+
     private void OnUnloaded(object sender, RoutedEventArgs e) => _scanCts?.Cancel();
 
     protected override void OnNavigatedTo(NavigationEventArgs e)
@@ -214,7 +235,7 @@ public sealed partial class RecommendationsPage : Page
 
     private async Task<bool> ConfirmApplyAsync(IReadOnlyList<CleanupRecommendation> selected)
     {
-        var panel = new StackPanel { Spacing = 12, MaxWidth = 480 };
+        var panel = new StackPanel { Spacing = 12 };
 
         panel.Children.Add(new TextBlock
         {
@@ -260,7 +281,9 @@ public sealed partial class RecommendationsPage : Page
             Content = new ScrollViewer
             {
                 Content = panel,
-                MaxHeight = 420
+                MaxHeight = 420,
+                HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
+                VerticalScrollBarVisibility = ScrollBarVisibility.Auto
             },
             PrimaryButtonText = "Apply",
             CloseButtonText = "Cancel",
@@ -323,7 +346,7 @@ public sealed partial class RecommendationsPage : Page
 
     private async Task ShowResultsDialogAsync(IReadOnlyList<ApplyActionResult> results)
     {
-        var panel = new StackPanel { Spacing = 8, MaxWidth = 440 };
+        var panel = new StackPanel { Spacing = 8 };
 
         foreach (var result in results)
         {

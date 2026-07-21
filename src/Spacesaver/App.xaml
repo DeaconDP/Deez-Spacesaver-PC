@@ -9,22 +9,8 @@
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
+                <ResourceDictionary Source="ms-appx:///Themes/AppTheme.xaml" />
             </ResourceDictionary.MergedDictionaries>
-
-            <SolidColorBrush x:Key="SemanticGoodBrush" Color="#66BB6A" />
-            <SolidColorBrush x:Key="SemanticImportantBrush" Color="#FFA726" />
-            <SolidColorBrush x:Key="SemanticAttentionBrush" Color="#FFD54F" />
-            <SolidColorBrush x:Key="SemanticInformativeBrush" Color="#64B5F6" />
-
-            <SolidColorBrush x:Key="SemanticGoodTintBrush" Color="#1A66BB6A" />
-            <SolidColorBrush x:Key="SemanticImportantTintBrush" Color="#1AFFA726" />
-            <SolidColorBrush x:Key="SemanticAttentionTintBrush" Color="#1AFFD54F" />
-            <SolidColorBrush x:Key="SemanticInformativeTintBrush" Color="#1A64B5F6" />
-
-            <TransitionCollection x:Key="StaggeredEntranceTransitions">
-                <EntranceThemeTransition FromVerticalOffset="20" IsStaggeringEnabled="True" />
-                <RepositionThemeTransition IsStaggeringEnabled="True" />
-            </TransitionCollection>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

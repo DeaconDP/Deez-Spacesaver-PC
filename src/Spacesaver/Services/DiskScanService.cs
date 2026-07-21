@@ -293,23 +293,5 @@ public sealed class DiskScanService
         return total;
     }
 
-    public static string FormatBytes(long bytes)
-    {
-        if (bytes < 1024)
-            return $"{bytes} B";
-
-        double value = bytes;
-        string[] units = ["KB", "MB", "GB", "TB"];
-        var unitIndex = 0;
-
-        while (value >= 1024 && unitIndex < units.Length - 1)
-        {
-            value /= 1024;
-            unitIndex++;
-        }
-
-        return unitIndex <= 1
-            ? $"{value:0} {units[unitIndex]}"
-            : $"{value:0.##} {units[unitIndex]}";
-    }
+    public static string FormatBytes(long bytes) => Helpers.ByteFormatHelper.FormatBytes(bytes);
 }

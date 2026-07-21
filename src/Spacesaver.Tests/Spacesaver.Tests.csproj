@@ -1,0 +1,49 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="coverlet.collector" Version="6.0.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+    <PackageReference Include="xunit" Version="2.5.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.5.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Using Include="Xunit" />
+  </ItemGroup>
+
+  <!--
+    The WinUI app project can't be referenced from a plain test project,
+    so the UI-free organiser sources are compiled in directly.
+  -->
+  <ItemGroup>
+    <Compile Include="..\Spacesaver\Helpers\ByteFormatHelper.cs" Link="AppSources\ByteFormatHelper.cs" />
+    <Compile Include="..\Spacesaver\Helpers\OrganiserPathHelper.cs" Link="AppSources\OrganiserPathHelper.cs" />
+    <Compile Include="..\Spacesaver\Helpers\ProjectFolderTypeHelper.cs" Link="AppSources\ProjectFolderTypeHelper.cs" />
+    <Compile Include="..\Spacesaver\Helpers\OrganiserFolderSortHelper.cs" Link="AppSources\OrganiserFolderSortHelper.cs" />
+    <Compile Include="..\Spacesaver\Helpers\OrganiserFolderFsMetadataHelper.cs" Link="AppSources\OrganiserFolderFsMetadataHelper.cs" />
+    <Compile Include="..\Spacesaver\Models\ProjectFolderType.cs" Link="AppSources\ProjectFolderType.cs" />
+    <Compile Include="..\Spacesaver\Models\OrganiserFolderSortMode.cs" Link="AppSources\OrganiserFolderSortMode.cs" />
+    <Compile Include="..\Spacesaver\Models\AppSettings.cs" Link="AppSources\AppSettings.cs" />
+    <Compile Include="..\Spacesaver\Models\FolderScanState.cs" Link="AppSources\FolderScanState.cs" />
+    <Compile Include="..\Spacesaver\Models\OrganiserFolder.cs" Link="AppSources\OrganiserFolder.cs" />
+    <Compile Include="..\Spacesaver\Models\OrganiserProject.cs" Link="AppSources\OrganiserProject.cs" />
+    <Compile Include="..\Spacesaver\Models\FolderMeasureResult.cs" Link="AppSources\FolderMeasureResult.cs" />
+    <Compile Include="..\Spacesaver\Models\DriveUsage.cs" Link="AppSources\DriveUsage.cs" />
+    <Compile Include="..\Spacesaver\Models\FolderSuggestion.cs" Link="AppSources\FolderSuggestion.cs" />
+    <Compile Include="..\Spacesaver\Services\ProjectOrganiserService.cs" Link="AppSources\ProjectOrganiserService.cs" />
+    <Compile Include="..\Spacesaver\Services\ProjectSizeCalculator.cs" Link="AppSources\ProjectSizeCalculator.cs" />
+    <Compile Include="..\Spacesaver\Services\FolderSizeService.cs" Link="AppSources\FolderSizeService.cs" />
+    <Compile Include="..\Spacesaver\Services\AppSettingsService.cs" Link="AppSources\AppSettingsService.cs" />
+    <Compile Include="..\Spacesaver\Services\FolderSuggestionService.cs" Link="AppSources\FolderSuggestionService.cs" />
+  </ItemGroup>
+
+</Project>

@@ -7,84 +7,119 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <Grid Padding="32,24,32,32" RowSpacing="16">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="*" />
-        </Grid.RowDefinitions>
+    <Grid>
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="WindowSizeStates">
+                <VisualState x:Name="Wide">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="900" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="PageRoot.Padding" Value="{StaticResource PagePaddingWide}" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="Narrow">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="PageRoot.Padding" Value="{StaticResource PagePaddingNarrow}" />
+                        <Setter Target="HeaderText.FontSize" Value="24" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
 
-        <StackPanel Spacing="4">
-            <TextBlock
-                x:Name="HeaderText"
-                FontSize="28"
-                FontWeight="SemiBold"
-                Text="All Tasks" />
-            <TextBlock
-                x:Name="SubtitleText"
-                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                Text="Select a task to see step-by-step guidance." />
-        </StackPanel>
+        <Grid
+            x:Name="PageRoot"
+            MaxWidth="{StaticResource PageContentMaxWidth}"
+            HorizontalAlignment="Stretch"
+            Padding="{StaticResource PagePaddingWide}"
+            RowSpacing="16">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
 
-        <ListView
-            x:Name="TaskListView"
-            Grid.Row="1"
-            ItemContainerTransitions="{StaticResource StaggeredEntranceTransitions}"
-            IsItemClickEnabled="True"
-            ItemClick="TaskListView_ItemClick"
-            SelectionMode="None">
-            <ListView.ItemTemplate>
-                <DataTemplate>
-                    <Grid
-                        Padding="16,12"
-                        ColumnSpacing="16">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
+            <StackPanel Spacing="4">
+                <TextBlock
+                    x:Name="HeaderText"
+                    Style="{StaticResource TitleTextStyle}"
+                    Text="All Tasks" />
+                <TextBlock
+                    x:Name="SubtitleText"
+                    Style="{StaticResource BodyTextStyle}"
+                    Text="Select a task to see step-by-step guidance." />
+            </StackPanel>
+
+            <ListView
+                x:Name="TaskListView"
+                Grid.Row="1"
+                ItemContainerTransitions="{StaticResource StaggeredEntranceTransitions}"
+                IsItemClickEnabled="True"
+                ItemClick="TaskListView_ItemClick"
+                SelectionMode="None">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Padding="12,12" ColumnSpacing="12" RowSpacing="6">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
 
                             <FontIcon
-                                VerticalAlignment="Center"
+                                Grid.RowSpan="2"
+                                VerticalAlignment="Top"
+                                Margin="0,2,0,0"
                                 FontSize="18"
                                 Foreground="{Binding RiskBrush}"
                                 Glyph="{Binding Task.IconGlyph}" />
 
-                        <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="2">
-                            <TextBlock
+                            <StackPanel Grid.Column="1" Spacing="2">
+                                <TextBlock
+                                    FontSize="16"
+                                    FontWeight="SemiBold"
+                                    Text="{Binding Task.Title}"
+                                    TextWrapping="WrapWholeWords" />
+                                <TextBlock
+                                    Foreground="{StaticResource AppMutedBrush}"
+                                    Text="{Binding Subtitle}"
+                                    TextWrapping="WrapWholeWords" />
+                            </StackPanel>
+
+                            <FontIcon
+                                Grid.Column="2"
+                                VerticalAlignment="Top"
+                                Margin="0,4,0,0"
                                 FontSize="16"
-                                FontWeight="SemiBold"
-                                Text="{Binding Task.Title}" />
-                            <TextBlock
-                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                Text="{Binding Subtitle}" />
-                        </StackPanel>
+                                Foreground="{StaticResource SemanticGoodBrush}"
+                                Glyph="&#xE73E;"
+                                Visibility="{Binding DoneIconVisibility}" />
 
-                        <Border
-                            Grid.Column="2"
-                            Padding="8,2"
-                            VerticalAlignment="Center"
-                            Background="{Binding RiskTintBrush}"
-                            BorderBrush="{Binding RiskBrush}"
-                            BorderThickness="1"
-                            CornerRadius="4">
-                            <TextBlock
-                                FontSize="12"
-                                FontWeight="SemiBold"
-                                Foreground="{Binding RiskBrush}"
-                                Text="{Binding Task.RiskLabel}" />
-                        </Border>
-
-                        <FontIcon
-                            Grid.Column="3"
-                            VerticalAlignment="Center"
-                            FontSize="16"
-                            Foreground="{StaticResource SemanticGoodBrush}"
-                            Glyph="&#xE73E;"
-                            Visibility="{Binding DoneIconVisibility}" />
-                    </Grid>
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
+                            <Border
+                                Grid.Row="1"
+                                Grid.Column="1"
+                                HorizontalAlignment="Left"
+                                Padding="8,2"
+                                Background="{Binding RiskTintBrush}"
+                                BorderBrush="{Binding RiskBrush}"
+                                BorderThickness="1"
+                                CornerRadius="2">
+                                <TextBlock
+                                    FontSize="12"
+                                    FontWeight="SemiBold"
+                                    Foreground="{Binding RiskBrush}"
+                                    Text="{Binding Task.RiskLabel}" />
+                            </Border>
+                        </Grid>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </Grid>
     </Grid>
 </Page>

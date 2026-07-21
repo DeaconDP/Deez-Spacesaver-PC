@@ -18,15 +18,20 @@ First launch may take a few seconds while the app unpacks bundled runtime files 
 ## What it includes
 
 - **Scan for Recommendations** — measures reclaimable space and lets you choose what to apply
+- **Project Organiser** — map each project's folders across all your drives (tag as Working, Parent, Assets, Backup, Junk, Template, Experiment, or Other later), with per-drive size bars to spot redundant copies; sort folders by tag, location, size, date created, or date last modified (choice remembered; rows show filesystem created/modified); **Suggestions** finds likely siblings and name matches to add. View-only: it never moves or deletes files.
 - **20 cleanup techniques** across Quick Wins, System Cleanup, Large Space Wins, and Manual Review
 - **Step-by-step guidance** with warnings for risky options
 - **One-click tool launchers** for Storage Sense, Disk Cleanup, System Properties, and more
-- **Progress tracking** saved in `%LocalAppData%\PCSpacesaver`
+- **Progress tracking** saved in `%LocalAppData%\PCSpacesaver` (organiser projects in `projects.json`, cleanup progress in `progress.json`, UI prefs such as folder sort in `settings.json`)
 - **Dark mode** UI
 
 ## Rebuild the exe (developers)
 
 Requires [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) and the Windows application development workload (Visual Studio 2022) or Windows App SDK.
+
+Double-click **`run.bat`** to restore packages, rebuild, and launch the app.
+
+Publish only (no launch):
 
 ```powershell
 .\publish.ps1
@@ -42,6 +47,7 @@ This app is a guided cleanup helper with a hybrid apply model:
 - **Safe auto-clean** (only after you confirm): empty Recycle Bin, delete user Temp files older than 3 days (skips in-use files)
 - **Everything else** opens the appropriate Windows tool — Disk Cleanup, Settings, Explorer — for you to complete manually
 - **Advanced / caution actions** are unchecked by default and show explicit risk warnings before apply
+- **Project Organiser is read-only on disk** — it only measures folder sizes and stores your project/folder associations locally; removing a project or folder from the organiser never touches the actual files. Offline USB drives keep their last known sizes.
 
 It does **not**:
 

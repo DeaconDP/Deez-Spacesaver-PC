@@ -7,7 +7,37 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <Grid Padding="32,24,32,24" RowSpacing="16">
+    <Grid
+        x:Name="PageRoot"
+        MaxWidth="{StaticResource PageContentMaxWidth}"
+        HorizontalAlignment="Stretch"
+        Padding="{StaticResource PagePaddingWide}"
+        RowSpacing="16"
+        SizeChanged="PageRoot_SizeChanged">
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="WindowSizeStates">
+                <VisualState x:Name="Wide">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="900" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="PageRoot.Padding" Value="{StaticResource PagePaddingWide}" />
+                        <Setter Target="LegendInfoBar.Visibility" Value="Visible" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="Narrow">
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="PageRoot.Padding" Value="{StaticResource PagePaddingNarrow}" />
+                        <Setter Target="LegendInfoBar.Visibility" Value="Collapsed" />
+                        <Setter Target="HeaderTitle.FontSize" Value="24" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -18,14 +48,13 @@
 
         <StackPanel x:Name="HeaderPanel" Spacing="8">
             <TextBlock
-                FontSize="28"
-                FontWeight="SemiBold"
+                x:Name="HeaderTitle"
+                Style="{StaticResource TitleTextStyle}"
                 Text="Recommendations" />
             <TextBlock
                 x:Name="DriveSummaryText"
-                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                Text="Scanning your drive…"
-                TextWrapping="WrapWholeWords" />
+                Style="{StaticResource BodyTextStyle}"
+                Text="Scanning your drive…" />
             <ProgressBar
                 x:Name="DriveUsageBar"
                 Maximum="100"
@@ -33,10 +62,11 @@
         </StackPanel>
 
         <InfoBar
+            x:Name="LegendInfoBar"
             Grid.Row="1"
             IsClosable="False"
             IsOpen="True"
-            Message="Green = safe and high value. Orange = important. Yellow = needs your attention. Blue = optional or informational. Safe deletions run in this app; other actions open Windows tools for you to confirm."
+            Message="Teal = safe and high value. Orange = important. Pink = needs attention. Blue = optional. Safe deletions run here; other actions open Windows tools."
             Severity="Informational"
             Title="How to read this list" />
 
@@ -49,23 +79,23 @@
 
             <ProgressRing
                 x:Name="ScanProgressRing"
-                Width="32"
-                Height="32"
+                Width="28"
+                Height="28"
                 IsActive="True" />
 
             <TextBlock
                 x:Name="ScanStatusText"
                 Grid.Column="1"
                 VerticalAlignment="Center"
-                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                Text="Starting scan…"
-                TextWrapping="WrapWholeWords" />
+                Style="{StaticResource BodyTextStyle}"
+                Text="Starting scan…" />
 
             <Button
                 x:Name="RescanButton"
                 Grid.Column="2"
                 Click="RescanButton_Click"
                 Content="Scan again"
+                Style="{StaticResource SecondaryActionButtonStyle}"
                 Visibility="Collapsed" />
         </Grid>
 
@@ -79,15 +109,15 @@
                     <Border
                         Margin="0,0,0,8"
                         Background="{Binding ImpactTintBrush}"
-                        BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                        BorderBrush="{StaticResource AppBorderBrush}"
                         BorderThickness="1"
-                        CornerRadius="8">
+                        CornerRadius="4">
                         <Grid>
                             <Border
-                                Width="4"
+                                Width="3"
                                 HorizontalAlignment="Left"
                                 Background="{Binding ImpactBrush}"
-                                CornerRadius="8,0,0,8" />
+                                CornerRadius="2,0,0,2" />
 
                             <Grid Padding="16,12,16,12" ColumnSpacing="12">
                                 <Grid.ColumnDefinitions>
@@ -100,59 +130,52 @@
                                     IsChecked="{Binding IsSelected, Mode=TwoWay}" />
 
                                 <StackPanel Grid.Column="1" Spacing="6">
-                                    <Grid ColumnSpacing="8">
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="*" />
-                                            <ColumnDefinition Width="Auto" />
-                                        </Grid.ColumnDefinitions>
-
-                                        <TextBlock
-                                            FontSize="16"
-                                            FontWeight="SemiBold"
-                                            Text="{Binding Title}"
-                                            TextWrapping="WrapWholeWords" />
-
-                                        <TextBlock
-                                            Grid.Column="1"
-                                            VerticalAlignment="Center"
-                                            FontWeight="SemiBold"
-                                            Foreground="{Binding ImpactBrush}"
-                                            Text="{Binding FormattedSize}"
-                                            Visibility="{Binding SizeVisibility}" />
-                                    </Grid>
+                                    <TextBlock
+                                        FontSize="16"
+                                        FontWeight="SemiBold"
+                                        Text="{Binding Title}"
+                                        TextWrapping="WrapWholeWords" />
 
                                     <TextBlock
-                                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
+                                        FontWeight="SemiBold"
+                                        Foreground="{Binding ImpactBrush}"
+                                        Text="{Binding FormattedSize}"
+                                        Visibility="{Binding SizeVisibility}" />
+
+                                    <TextBlock
+                                        Foreground="{StaticResource AppMutedBrush}"
                                         Text="{Binding ScanDetail}"
                                         TextWrapping="WrapWholeWords" />
 
-                                    <StackPanel Orientation="Horizontal" Spacing="8">
-                                        <Border
-                                            Padding="8,2"
-                                            Background="{Binding ImpactBrush}"
-                                            CornerRadius="4">
-                                            <TextBlock
-                                                FontSize="12"
-                                                FontWeight="SemiBold"
-                                                Foreground="White"
-                                                Text="{Binding ImpactLabel}" />
-                                        </Border>
-                                        <Border
-                                            Padding="8,2"
-                                            Background="{Binding RiskBrush}"
-                                            CornerRadius="4">
-                                            <TextBlock
-                                                FontSize="12"
-                                                FontWeight="SemiBold"
-                                                Foreground="White"
-                                                Text="{Binding RiskLabel}" />
-                                        </Border>
+                                    <StackPanel Orientation="Vertical" Spacing="6">
+                                        <StackPanel Orientation="Horizontal" Spacing="8">
+                                            <Border
+                                                Padding="8,2"
+                                                Background="{Binding ImpactBrush}"
+                                                CornerRadius="2">
+                                                <TextBlock
+                                                    FontSize="12"
+                                                    FontWeight="SemiBold"
+                                                    Foreground="#0A0B0F"
+                                                    Text="{Binding ImpactLabel}" />
+                                            </Border>
+                                            <Border
+                                                Padding="8,2"
+                                                Background="{Binding RiskBrush}"
+                                                CornerRadius="2">
+                                                <TextBlock
+                                                    FontSize="12"
+                                                    FontWeight="SemiBold"
+                                                    Foreground="#0A0B0F"
+                                                    Text="{Binding RiskLabel}" />
+                                            </Border>
+                                        </StackPanel>
                                         <TextBlock
-                                            VerticalAlignment="Center"
                                             FontSize="12"
                                             FontWeight="SemiBold"
                                             Foreground="{Binding ExecutionForeground}"
-                                            Text="{Binding ExecutionLabel}" />
+                                            Text="{Binding ExecutionLabel}"
+                                            TextWrapping="WrapWholeWords" />
                                     </StackPanel>
 
                                     <TextBlock
@@ -163,6 +186,7 @@
                                     <HyperlinkButton
                                         Click="LearnMore_Click"
                                         Content="Learn more"
+                                        Padding="0"
                                         Tag="{Binding TaskId}" />
                                 </StackPanel>
                             </Grid>
@@ -175,36 +199,38 @@
         <Border
             x:Name="ApplyFooter"
             Grid.Row="4"
-            Padding="16"
-            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-            BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-            BorderThickness="1"
-            CornerRadius="8">
-            <Grid ColumnSpacing="16">
+            Style="{StaticResource ApplyFooterBorderStyle}">
+            <Grid x:Name="FooterGrid" ColumnSpacing="16" RowSpacing="12">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
 
                 <StackPanel VerticalAlignment="Center" Spacing="4">
                     <TextBlock
                         x:Name="SelectionSummaryText"
                         FontWeight="SemiBold"
-                        Text="0 selected" />
+                        Text="0 selected"
+                        TextWrapping="WrapWholeWords" />
                     <TextBlock
                         x:Name="ApplyStatusText"
-                        Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                        TextWrapping="WrapWholeWords"
+                        Style="{StaticResource BodyTextStyle}"
                         Visibility="Collapsed" />
                 </StackPanel>
 
                 <Button
                     x:Name="ApplyButton"
                     Grid.Column="1"
+                    MinWidth="140"
+                    VerticalAlignment="Center"
                     Click="ApplyButton_Click"
                     Content="Apply Selected"
                     IsEnabled="False"
-                    Style="{StaticResource AccentButtonStyle}" />
+                    Style="{StaticResource PrimaryActionButtonStyle}" />
             </Grid>
         </Border>
     </Grid>

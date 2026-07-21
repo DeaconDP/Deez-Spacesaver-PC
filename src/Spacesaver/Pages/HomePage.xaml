@@ -7,8 +7,46 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <ScrollViewer>
-        <Grid Padding="32,24,32,32" RowSpacing="28">
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+        <Grid
+            x:Name="PageRoot"
+            MaxWidth="{StaticResource PageContentMaxWidth}"
+            HorizontalAlignment="Stretch"
+            Padding="{StaticResource PagePaddingWide}"
+            RowSpacing="24"
+            SizeChanged="PageRoot_SizeChanged">
+            <VisualStateManager.VisualStateGroups>
+                <VisualStateGroup x:Name="WindowSizeStates">
+                    <VisualState x:Name="Wide">
+                        <VisualState.StateTriggers>
+                            <AdaptiveTrigger MinWindowWidth="900" />
+                        </VisualState.StateTriggers>
+                        <VisualState.Setters>
+                            <Setter Target="PageRoot.Padding" Value="{StaticResource PagePaddingWide}" />
+                            <Setter Target="ProgressRing.Width" Value="64" />
+                            <Setter Target="ProgressRing.Height" Value="64" />
+                            <Setter Target="BrandLogo.Width" Value="104" />
+                            <Setter Target="BrandLogo.Height" Value="104" />
+                            <Setter Target="HeaderPanel.ColumnSpacing" Value="20" />
+                        </VisualState.Setters>
+                    </VisualState>
+                    <VisualState x:Name="Narrow">
+                        <VisualState.StateTriggers>
+                            <AdaptiveTrigger MinWindowWidth="0" />
+                        </VisualState.StateTriggers>
+                        <VisualState.Setters>
+                            <Setter Target="PageRoot.Padding" Value="{StaticResource PagePaddingNarrow}" />
+                            <Setter Target="ProgressRing.Width" Value="48" />
+                            <Setter Target="ProgressRing.Height" Value="48" />
+                            <Setter Target="HeroTitle.FontSize" Value="28" />
+                            <Setter Target="BrandLogo.Width" Value="72" />
+                            <Setter Target="BrandLogo.Height" Value="72" />
+                            <Setter Target="HeaderPanel.ColumnSpacing" Value="16" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateManager.VisualStateGroups>
+
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
@@ -16,26 +54,53 @@
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
 
-            <StackPanel x:Name="HeaderPanel" Spacing="8">
-                <TextBlock
-                    FontSize="32"
-                    FontWeight="SemiBold"
-                    Text="PC Spacesaver" />
-                <TextBlock
-                    Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                    Text="Scan your drive for tailored recommendations. Safe cleanups run in-app; everything else opens built-in Windows tools so you stay in control."
-                    TextWrapping="WrapWholeWords" />
-            </StackPanel>
+            <Grid x:Name="HeaderPanel" ColumnSpacing="20">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+
+                <Image
+                    x:Name="BrandLogo"
+                    Width="104"
+                    Height="104"
+                    VerticalAlignment="Top"
+                    AutomationProperties.Name="PC Spacesaver logo"
+                    Source="Assets/BrandLogo.png"
+                    Stretch="Uniform" />
+
+                <StackPanel Grid.Column="1" Spacing="12">
+                    <TextBlock
+                        x:Name="HeroTitle"
+                        Style="{StaticResource DisplayTextStyle}"
+                        Text="PC Spacesaver" />
+                    <TextBlock
+                        MaxWidth="640"
+                        Style="{StaticResource BodyTextStyle}"
+                        Text="Scan your drive for tailored recommendations. Safe cleanups run in-app; everything else opens built-in Windows tools so you stay in control." />
+                    <StackPanel Margin="0,8,0,0" Spacing="8">
+                        <Button
+                            x:Name="ScanButton"
+                            HorizontalAlignment="Left"
+                            Click="ScanRecommendations_Click"
+                            Content="Scan for Recommendations"
+                            Style="{StaticResource PrimaryActionButtonStyle}" />
+                        <TextBlock
+                            Style="{StaticResource MetaTextStyle}"
+                            Text="Analyze your drive and pick what to clean." />
+                        <HyperlinkButton
+                            Click="StartQuickWins_Click"
+                            Content="Or start with Quick Wins"
+                            Padding="0" />
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
 
             <Border
                 x:Name="ProgressCard"
                 Grid.Row="1"
-                Padding="24"
-                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                BorderThickness="1"
-                CornerRadius="12">
-                <Grid ColumnSpacing="24">
+                Style="{StaticResource SurfaceBorderStyle}">
+                <Grid ColumnSpacing="16">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto" />
                         <ColumnDefinition Width="*" />
@@ -43,45 +108,27 @@
 
                     <ProgressRing
                         x:Name="ProgressRing"
-                        Width="72"
-                        Height="72"
+                        Width="64"
+                        Height="64"
                         VerticalAlignment="Center" />
 
-                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="6">
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Spacing="4">
                         <TextBlock
                             x:Name="ProgressText"
-                            FontSize="20"
-                            FontWeight="SemiBold"
+                            Style="{StaticResource SectionTitleTextStyle}"
                             Text="0 of 20 complete" />
                         <TextBlock
-                            Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                            Text="Work through the checklist at your own pace. Mark tasks done as you finish them."
-                            TextWrapping="WrapWholeWords" />
-                        <StackPanel Margin="0,8,0,0" Spacing="8">
-                            <Button
-                                x:Name="ScanButton"
-                                Click="ScanRecommendations_Click"
-                                Content="Scan for Recommendations"
-                                Style="{StaticResource AccentButtonStyle}" />
-                            <TextBlock
-                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                FontSize="12"
-                                Text="Analyze your drive and pick what to clean."
-                                TextWrapping="WrapWholeWords" />
-                            <Button
-                                Click="StartQuickWins_Click"
-                                Content="Start with Quick Wins" />
-                        </StackPanel>
+                            Style="{StaticResource BodyTextStyle}"
+                            Text="Work through the checklist at your own pace. Mark tasks done as you finish them." />
                     </StackPanel>
                 </Grid>
             </Border>
 
             <StackPanel x:Name="CategoriesPanel" Grid.Row="2" Spacing="12">
-                <TextBlock
-                    FontSize="20"
-                    FontWeight="SemiBold"
-                    Text="Categories" />
-                <Grid ColumnSpacing="12" RowSpacing="12">
+                <TextBlock Style="{StaticResource SectionTitleTextStyle}" Text="Categories" />
+
+                <!-- Wide: 2x2 -->
+                <Grid x:Name="WideCategories" ColumnSpacing="12" RowSpacing="12">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="*" />
@@ -93,65 +140,93 @@
 
                     <Button
                         x:Name="QuickWinsButton"
-                        MinHeight="96"
                         Click="QuickWins_Click"
-                        Style="{StaticResource DefaultButtonStyle}">
+                        Style="{StaticResource CategoryTileButtonStyle}">
                         <StackPanel Spacing="4">
-                            <FontIcon FontSize="20" Glyph="&#xE945;" />
+                            <FontIcon FontSize="18" Glyph="&#xE945;" />
                             <TextBlock FontWeight="SemiBold" Text="Quick Wins" />
-                            <TextBlock
-                                FontSize="12"
-                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                Text="5 safe tasks · ~5 min" />
+                            <TextBlock Style="{StaticResource MetaTextStyle}" Text="5 safe tasks · ~5 min" />
                         </StackPanel>
                     </Button>
                     <Button
                         x:Name="SystemCleanupButton"
                         Grid.Column="1"
-                        MinHeight="96"
                         Click="SystemCleanup_Click"
-                        Style="{StaticResource DefaultButtonStyle}">
+                        Style="{StaticResource CategoryTileButtonStyle}">
                         <StackPanel Spacing="4">
-                            <FontIcon FontSize="20" Glyph="&#xE7EF;" />
+                            <FontIcon FontSize="18" Glyph="&#xE7EF;" />
                             <TextBlock FontWeight="SemiBold" Text="System Cleanup" />
-                            <TextBlock
-                                FontSize="12"
-                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                Text="5 admin tasks · ~10 min" />
+                            <TextBlock Style="{StaticResource MetaTextStyle}" Text="5 admin tasks · ~10 min" />
                         </StackPanel>
                     </Button>
                     <Button
                         x:Name="LargeWinsButton"
                         Grid.Row="1"
-                        MinHeight="96"
                         Click="LargeWins_Click"
-                        Style="{StaticResource DefaultButtonStyle}">
+                        Style="{StaticResource CategoryTileButtonStyle}">
                         <StackPanel Spacing="4">
-                            <FontIcon FontSize="20" Glyph="&#xE7FC;" />
+                            <FontIcon FontSize="18" Glyph="&#xE7FC;" />
                             <TextBlock FontWeight="SemiBold" Text="Large Space Wins" />
-                            <TextBlock
-                                FontSize="12"
-                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                Text="5 caution tasks · read warnings" />
+                            <TextBlock Style="{StaticResource MetaTextStyle}" Text="5 caution tasks · read warnings" />
                         </StackPanel>
                     </Button>
                     <Button
                         x:Name="ManualReviewButton"
                         Grid.Row="1"
                         Grid.Column="1"
-                        MinHeight="96"
                         Click="ManualReview_Click"
-                        Style="{StaticResource DefaultButtonStyle}">
+                        Style="{StaticResource CategoryTileButtonStyle}">
                         <StackPanel Spacing="4">
-                            <FontIcon FontSize="20" Glyph="&#xE7B8;" />
+                            <FontIcon FontSize="18" Glyph="&#xE7B8;" />
                             <TextBlock FontWeight="SemiBold" Text="Manual Review" />
-                            <TextBlock
-                                FontSize="12"
-                                Foreground="{ThemeResource TextFillColorSecondaryBrush}"
-                                Text="5 tasks · your judgment" />
+                            <TextBlock Style="{StaticResource MetaTextStyle}" Text="5 tasks · your judgment" />
                         </StackPanel>
                     </Button>
                 </Grid>
+
+                <!-- Narrow: single column (duplicate handlers; same destinations) -->
+                <StackPanel x:Name="NarrowCategories" Spacing="12" Visibility="Collapsed">
+                    <Button
+                        x:Name="QuickWinsButtonNarrow"
+                        Click="QuickWins_Click"
+                        Style="{StaticResource CategoryTileButtonStyle}">
+                        <StackPanel Spacing="4">
+                            <FontIcon FontSize="18" Glyph="&#xE945;" />
+                            <TextBlock FontWeight="SemiBold" Text="Quick Wins" />
+                            <TextBlock Style="{StaticResource MetaTextStyle}" Text="5 safe tasks · ~5 min" />
+                        </StackPanel>
+                    </Button>
+                    <Button
+                        x:Name="SystemCleanupButtonNarrow"
+                        Click="SystemCleanup_Click"
+                        Style="{StaticResource CategoryTileButtonStyle}">
+                        <StackPanel Spacing="4">
+                            <FontIcon FontSize="18" Glyph="&#xE7EF;" />
+                            <TextBlock FontWeight="SemiBold" Text="System Cleanup" />
+                            <TextBlock Style="{StaticResource MetaTextStyle}" Text="5 admin tasks · ~10 min" />
+                        </StackPanel>
+                    </Button>
+                    <Button
+                        x:Name="LargeWinsButtonNarrow"
+                        Click="LargeWins_Click"
+                        Style="{StaticResource CategoryTileButtonStyle}">
+                        <StackPanel Spacing="4">
+                            <FontIcon FontSize="18" Glyph="&#xE7FC;" />
+                            <TextBlock FontWeight="SemiBold" Text="Large Space Wins" />
+                            <TextBlock Style="{StaticResource MetaTextStyle}" Text="5 caution tasks · read warnings" />
+                        </StackPanel>
+                    </Button>
+                    <Button
+                        x:Name="ManualReviewButtonNarrow"
+                        Click="ManualReview_Click"
+                        Style="{StaticResource CategoryTileButtonStyle}">
+                        <StackPanel Spacing="4">
+                            <FontIcon FontSize="18" Glyph="&#xE7B8;" />
+                            <TextBlock FontWeight="SemiBold" Text="Manual Review" />
+                            <TextBlock Style="{StaticResource MetaTextStyle}" Text="5 tasks · your judgment" />
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
             </StackPanel>
 
             <InfoBar

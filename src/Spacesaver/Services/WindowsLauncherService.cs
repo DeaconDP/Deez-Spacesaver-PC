@@ -70,4 +70,22 @@ public sealed class WindowsLauncherService
         var expanded = Environment.ExpandEnvironmentVariables(path);
         return LaunchExecutable("explorer.exe", expanded);
     }
+
+    /// <summary>Opens a folder path in File Explorer. Caller should verify existence for UX messaging.</summary>
+    public (bool Ok, string? Error) OpenFolder(string path)
+    {
+        try
+        {
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = path,
+                UseShellExecute = true
+            });
+            return (true, null);
+        }
+        catch (Exception ex)
+        {
+            return (false, ex.Message);
+        }
+    }
 }

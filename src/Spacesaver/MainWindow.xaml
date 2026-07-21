@@ -12,7 +12,7 @@
         <MicaBackdrop />
     </Window.SystemBackdrop>
 
-    <Grid>
+    <Grid Background="{StaticResource AppBgBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="48" />
             <RowDefinition Height="*" />
@@ -33,9 +33,12 @@
         <NavigationView
             x:Name="NavView"
             Grid.Row="1"
+            CompactModeThresholdWidth="720"
+            ExpandedModeThresholdWidth="1100"
             IsBackButtonVisible="Collapsed"
             IsPaneToggleButtonVisible="False"
             Loaded="NavView_Loaded"
+            OpenPaneLength="240"
             SelectionChanged="NavView_SelectionChanged">
             <NavigationView.MenuItems>
                 <NavigationViewItem
@@ -43,6 +46,11 @@
                     Tag="home">
                     <NavigationViewItem.Icon>
                         <FontIcon Glyph="&#xE80F;" />
+                    </NavigationViewItem.Icon>
+                </NavigationViewItem>
+                <NavigationViewItem Content="Project Organiser" Tag="project-organiser">
+                    <NavigationViewItem.Icon>
+                        <FontIcon Glyph="&#xE8B7;" />
                     </NavigationViewItem.Icon>
                 </NavigationViewItem>
                 <NavigationViewItem Content="All Tasks" Tag="all-tasks">

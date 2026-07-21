@@ -13,10 +13,11 @@ public enum SemanticTone
 
 public static class SemanticColorHelper
 {
-    public static Windows.UI.Color GoodAccent { get; } = Windows.UI.Color.FromArgb(255, 102, 187, 106);
-    public static Windows.UI.Color ImportantAccent { get; } = Windows.UI.Color.FromArgb(255, 255, 167, 38);
-    public static Windows.UI.Color AttentionAccent { get; } = Windows.UI.Color.FromArgb(255, 255, 213, 79);
-    public static Windows.UI.Color InformativeAccent { get; } = Windows.UI.Color.FromArgb(255, 100, 181, 246);
+    // Cyberpunk-aligned accents (teal / orange / pink / blue)
+    public static Windows.UI.Color GoodAccent { get; } = Windows.UI.Color.FromArgb(255, 0, 229, 192);
+    public static Windows.UI.Color ImportantAccent { get; } = Windows.UI.Color.FromArgb(255, 255, 138, 76);
+    public static Windows.UI.Color AttentionAccent { get; } = Windows.UI.Color.FromArgb(255, 255, 61, 129);
+    public static Windows.UI.Color InformativeAccent { get; } = Windows.UI.Color.FromArgb(255, 107, 158, 255);
 
     public static Brush GetAccentBrush(SemanticTone tone) =>
         new SolidColorBrush(GetAccentColor(tone));

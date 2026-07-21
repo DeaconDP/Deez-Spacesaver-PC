@@ -4,11 +4,17 @@ using Microsoft.UI.Xaml.Controls;
 using Spacesaver.Helpers;
 using Spacesaver.Models;
 using Spacesaver.Pages;
+using Windows.Graphics;
 
 namespace Spacesaver;
 
 public sealed partial class MainWindow : Window
 {
+    private const int DefaultWidth = 1100;
+    private const int DefaultHeight = 720;
+    private const int MinWidth = 720;
+    private const int MinHeight = 520;
+
     private bool _initialNavigationDone;
 
     public MainWindow()
@@ -18,7 +24,16 @@ public sealed partial class MainWindow : Window
         ExtendsContentIntoTitleBar = true;
         SetTitleBar(AppTitleBar);
         AppWindow.TitleBar.PreferredHeightOption = TitleBarHeightOption.Tall;
-        AppWindow.SetIcon("Assets/AppIcon.ico");
+        AppWindow.SetIcon(
+            Path.Combine(AppContext.BaseDirectory, "Assets", "AppIcon.ico"));
+
+        ApplyWindowSizePolicy();
+    }
+
+    private void ApplyWindowSizePolicy()
+    {
+        AppWindow.Resize(new SizeInt32(DefaultWidth, DefaultHeight));
+        WindowMinSizeHelper.SetMinSize(this, MinWidth, MinHeight);
     }
 
     private void NavView_Loaded(object sender, RoutedEventArgs e)
@@ -65,6 +80,9 @@ public sealed partial class MainWindow : Window
         {
             case "home":
                 NavFrame.Navigate(typeof(HomePage));
+                break;
+            case "project-organiser":
+                NavFrame.Navigate(typeof(ProjectOrganiserPage));
                 break;
             case "all-tasks":
                 NavFrame.Navigate(typeof(TaskListPage), new TaskListNavigationArgs { Title = "All Tasks" });
