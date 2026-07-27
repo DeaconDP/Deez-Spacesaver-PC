@@ -1,0 +1,32 @@
+{"sessionId":"a8683f","hypothesisId":"B","location":"FolderMultiPicker.cs:GetResults","message":"GetResults returned","data":{"resultsNull":false},"timestamp":1784319101741}
+{"sessionId":"a8683f","hypothesisId":"B","location":"FolderMultiPicker.cs:GetCount","message":"result count","data":{"count":1},"timestamp":1784319101939}
+{"sessionId":"a8683f","hypothesisId":"D","location":"FolderMultiPicker.cs:GetItemAt","message":"item retrieved","data":{"i":0,"itemNull":false},"timestamp":1784319101939}
+{"sessionId":"a8683f","hypothesisId":"D","location":"FolderMultiPicker.cs:paths","message":"paths collected","data":{"pathCount":1,"count":1},"timestamp":1784319101940}
+{"sessionId":"a8683f","hypothesisId":"E","location":"ProjectOrganiserPage.cs:pickResult","message":"multi picker result","data":{"Cancelled":false,"pathCount":1,"Error":null},"timestamp":1784319101940}
+{"sessionId":"a8683f","hypothesisId":"F","location":"ProjectOrganiserPage.cs:addComplete","message":"batch add finished","data":{"addedCount":1,"duplicateCount":0,"errorCount":0,"overlapCount":0,"firstError":null},"timestamp":1784319101943}
+{"sessionId":"a8683f","hypothesisId":"B","location":"FolderMultiPicker.cs:GetResults","message":"GetResults returned","data":{"resultsNull":false},"timestamp":1784319179660}
+{"sessionId":"a8683f","hypothesisId":"B","location":"FolderMultiPicker.cs:GetCount","message":"result count","data":{"count":1},"timestamp":1784319179662}
+{"sessionId":"a8683f","hypothesisId":"D","location":"FolderMultiPicker.cs:GetItemAt","message":"item retrieved","data":{"i":0,"itemNull":false},"timestamp":1784319179662}
+{"sessionId":"a8683f","hypothesisId":"D","location":"FolderMultiPicker.cs:paths","message":"paths collected","data":{"pathCount":1,"count":1},"timestamp":1784319179663}
+{"sessionId":"a8683f","hypothesisId":"E","location":"ProjectOrganiserPage.cs:pickResult","message":"multi picker result","data":{"Cancelled":false,"pathCount":1,"Error":null},"timestamp":1784319179664}
+{"sessionId":"a8683f","hypothesisId":"F","location":"ProjectOrganiserPage.cs:addComplete","message":"batch add finished","data":{"addedCount":1,"duplicateCount":0,"errorCount":0,"overlapCount":0,"firstError":null},"timestamp":1784319179666}
+{"sessionId":"a8683f","hypothesisId":"B","location":"FolderMultiPicker.cs:GetResults","message":"GetResults returned","data":{"resultsNull":false},"timestamp":1784319192910}
+{"sessionId":"a8683f","hypothesisId":"B","location":"FolderMultiPicker.cs:GetCount","message":"result count","data":{"count":1},"timestamp":1784319192911}
+{"sessionId":"a8683f","hypothesisId":"D","location":"FolderMultiPicker.cs:GetItemAt","message":"item retrieved","data":{"i":0,"itemNull":false},"timestamp":1784319192911}
+{"sessionId":"a8683f","hypothesisId":"D","location":"FolderMultiPicker.cs:paths","message":"paths collected","data":{"pathCount":1,"count":1},"timestamp":1784319192912}
+{"sessionId":"a8683f","hypothesisId":"E","location":"ProjectOrganiserPage.cs:pickResult","message":"multi picker result","data":{"Cancelled":false,"pathCount":1,"Error":null},"timestamp":1784319192912}
+{"sessionId":"a8683f","hypothesisId":"F","location":"ProjectOrganiserPage.cs:addComplete","message":"batch add finished","data":{"addedCount":1,"duplicateCount":0,"errorCount":0,"overlapCount":0,"firstError":null},"timestamp":1784319192915}
+{"sessionId":"a8683f","hypothesisId":"B","location":"FolderMultiPicker.cs:GetResults","message":"GetResults returned","data":{"resultsNull":false},"timestamp":1784319351366}
+{"sessionId":"a8683f","hypothesisId":"B","location":"FolderMultiPicker.cs:GetCount","message":"result count","data":{"count":7},"timestamp":1784319351367}
+{"sessionId":"a8683f","hypothesisId":"D","location":"FolderMultiPicker.cs:GetItemAt","message":"item retrieved","data":{"i":0,"itemNull":false},"timestamp":1784319351368}
+{"sessionId":"a8683f","hypothesisId":"D","location":"FolderMultiPicker.cs:GetItemAt","message":"item retrieved","data":{"i":1,"itemNull":false},"timestamp":1784319351368}
+{"sessionId":"a8683f","hypothesisId":"D","location":"FolderMultiPicker.cs:GetItemAt","message":"item retrieved","data":{"i":2,"itemNull":false},"timestamp":1784319351369}
+{"sessionId":"a8683f","hypothesisId":"D","location":"FolderMultiPicker.cs:GetItemAt","message":"item retrieved","data":{"i":3,"itemNull":false},"timestamp":1784319351369}
+{"sessionId":"a8683f","hypothesisId":"D","location":"FolderMultiPicker.cs:GetItemAt","message":"item retrieved","data":{"i":4,"itemNull":false},"timestamp":1784319351369}
+{"sessionId":"a8683f","hypothesisId":"D","location":"FolderMultiPicker.cs:GetItemAt","message":"item retrieved","data":{"i":5,"itemNull":false},"timestamp":1784319351370}
+{"sessionId":"a8683f","hypothesisId":"D","location":"FolderMultiPicker.cs:GetItemAt","message":"item retrieved","data":{"i":6,"itemNull":false},"timestamp":1784319351370}
+{"sessionId":"a8683f","hypothesisId":"D","location":"FolderMultiPicker.cs:paths","message":"paths collected","data":{"pathCount":7,"count":7},"timestamp":1784319351371}
+{"sessionId":"a8683f","hypothesisId":"E","location":"ProjectOrganiserPage.cs:pickResult","message":"multi picker result","data":{"Cancelled":false,"pathCount":7,"Error":null},"timestamp":1784319351371}
+{"sessionId":"a8683f","hypothesisId":"F","location":"ProjectOrganiserPage.cs:addComplete","message":"batch add finished","data":{"addedCount":7,"duplicateCount":0,"errorCount":0,"overlapCount":7,"firstError":null},"timestamp":1784319351385}
+{"sessionId":"a8683f","hypothesisId":"A","location":"FolderMultiPicker.cs:cancelled","message":"user cancelled","data":null,"timestamp":1784319630814}
+{"sessionId":"a8683f","hypothesisId":"E","location":"ProjectOrganiserPage.cs:pickResult","message":"multi picker result","data":{"Cancelled":true,"pathCount":0,"Error":null},"timestamp":1784319630815}

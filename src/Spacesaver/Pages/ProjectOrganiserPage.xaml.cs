@@ -24,6 +24,8 @@ public sealed partial class ProjectOrganiserPage : Page
     private int _scanCompleted;
     private int _scanTotal;
     private bool _suppressSortComboChange;
+    private bool? _drivesExpandedOverride;
+    private bool _drivesCompact;
 
     public ProjectOrganiserPage()
     {
@@ -35,6 +37,7 @@ public sealed partial class ProjectOrganiserPage : Page
 
     private async void OnLoaded(object sender, RoutedEventArgs e)
     {
+        _drivesCompact = ActualWidth > 0 && ActualWidth < 900;
         SyncFolderSortCombo(AppServices.Settings.OrganiserFolderSort);
         LoadProjects();
         await AnimationHelper.PlayStaggerEntranceAsync([HeaderPanel, ToolbarPanel]);
@@ -74,18 +77,8 @@ public sealed partial class ProjectOrganiserPage : Page
         _suppressSortComboChange = true;
         try
         {
-            foreach (var item in FolderSortComboBox.Items.OfType<ComboBoxItem>())
-            {
-                if (item.Tag is string tag &&
-                    Enum.TryParse<OrganiserFolderSortMode>(tag, out var itemMode) &&
-                    itemMode == mode)
-                {
-                    FolderSortComboBox.SelectedItem = item;
-                    return;
-                }
-            }
-
-            FolderSortComboBox.SelectedIndex = 1; // Location default
+            SyncSortComboBox(FolderSortComboBox, mode);
+            SyncSortComboBox(NarrowFolderSortComboBox, mode);
         }
         finally
         {
@@ -93,17 +86,67 @@ public sealed partial class ProjectOrganiserPage : Page
         }
     }
 
-    private void FolderSortComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    private static void SyncSortComboBox(ComboBox comboBox, OrganiserFolderSortMode mode)
+    {
+        foreach (var item in comboBox.Items.OfType<ComboBoxItem>())
+        {
+            if (item.Tag is string tag &&
+                Enum.TryParse<OrganiserFolderSortMode>(tag, out var itemMode) &&
+                itemMode == mode)
+            {
+                comboBox.SelectedItem = item;
+                return;
+            }
+        }
+
+        comboBox.SelectedIndex = 1; // Location default
+    }
+
+    private void FolderSortComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e) =>
+        ApplySortFromComboBox(FolderSortComboBox);
+
+    private void NarrowFolderSortComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e) =>
+        ApplySortFromComboBox(NarrowFolderSortComboBox);
+
+    private void ApplySortFromComboBox(ComboBox comboBox)
     {
         if (_suppressSortComboChange)
             return;
 
-        if (FolderSortComboBox.SelectedItem is not ComboBoxItem { Tag: string tag } ||
+        if (comboBox.SelectedItem is not ComboBoxItem { Tag: string tag } ||
             !Enum.TryParse<OrganiserFolderSortMode>(tag, out var mode))
             return;
 
         AppServices.Settings.SetOrganiserFolderSort(mode);
+        SyncFolderSortCombo(mode);
         ApplyFolderSortToAll();
+    }
+
+    private void Page_SizeChanged(object sender, SizeChangedEventArgs e)
+    {
+        var compact = e.NewSize.Width < 900;
+        if (compact == _drivesCompact)
+            return;
+
+        _drivesCompact = compact;
+        RefreshDrivesPanel();
+    }
+
+    private void DrivesToggleButton_Click(object sender, RoutedEventArgs e)
+    {
+        var expand = DrivesTable.Visibility != Visibility.Visible;
+        _drivesExpandedOverride = expand;
+        ApplyDrivesExpandedState();
+    }
+
+    private void ApplyDrivesExpandedState()
+    {
+        var expand = _drivesExpandedOverride ?? _projects.Count == 0;
+        DrivesTable.Visibility = expand ? Visibility.Visible : Visibility.Collapsed;
+        DrivesChevron.Glyph = expand ? "\uE70E" : "\uE70D"; // up / down
+        AutomationProperties.SetName(
+            DrivesToggleButton,
+            expand ? "Collapse drives panel" : "Expand drives panel");
     }
 
     private void ApplyFolderSortToAll()
@@ -121,8 +164,12 @@ public sealed partial class ProjectOrganiserPage : Page
         var isEmpty = _projects.Count == 0;
         EmptyStatePanel.Visibility = isEmpty ? Visibility.Visible : Visibility.Collapsed;
         ProjectsList.Visibility = isEmpty ? Visibility.Collapsed : Visibility.Visible;
-        RefreshAllButton.IsEnabled = !isEmpty && !_isScanning;
-        SuggestionsAllButton.IsEnabled = !isEmpty && !_isScanning;
+        var toolsEnabled = !isEmpty && !_isScanning;
+        RefreshAllButton.IsEnabled = toolsEnabled;
+        SuggestionsAllButton.IsEnabled = toolsEnabled;
+        NarrowRefreshAllButton.IsEnabled = toolsEnabled;
+        NarrowSuggestionsAllButton.IsEnabled = toolsEnabled;
+        ApplyDrivesExpandedState();
     }
 
     private void RefreshDrivesPanel()
@@ -132,11 +179,22 @@ public sealed partial class ProjectOrganiserPage : Page
         DrivesTable.RowDefinitions.Clear();
         DrivesTable.ColumnDefinitions.Clear();
 
+        var readyCount = _drives.Count(d => d.IsReady);
+        DrivesSummaryText.Text = _drives.Count == 0
+            ? "No drives detected"
+            : readyCount == _drives.Count
+                ? $"{_drives.Count} drive(s)"
+                : $"{readyCount} of {_drives.Count} ready";
+
+        // Compact: swatch | name* | used | bar*
+        // Wide:     swatch | name* | type | used | capacity | bar*
         DrivesTable.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         DrivesTable.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+        if (!_drivesCompact)
+            DrivesTable.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         DrivesTable.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        DrivesTable.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
-        DrivesTable.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+        if (!_drivesCompact)
+            DrivesTable.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         DrivesTable.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(2, GridUnitType.Star) });
 
         var metaStyle = (Style)Application.Current.Resources["MetaTextStyle"];
@@ -144,11 +202,17 @@ public sealed partial class ProjectOrganiserPage : Page
         var borderBrush = (Brush)Application.Current.Resources["AppBorderBrush"];
         var surfaceBrush = (Brush)Application.Current.Resources["AppSurfaceBrush"];
 
+        var usedCol = _drivesCompact ? 2 : 3;
+        var capacityCol = 4;
+        var barCol = _drivesCompact ? 3 : 5;
+
         DrivesTable.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
         AddDriveTableHeaderCell("DRIVE", 1, 0, metaStyle, mutedBrush);
-        AddDriveTableHeaderCell("TYPE", 2, 0, metaStyle, mutedBrush);
-        AddDriveTableHeaderCell("USED", 3, 0, metaStyle, mutedBrush);
-        AddDriveTableHeaderCell("CAPACITY", 4, 0, metaStyle, mutedBrush);
+        if (!_drivesCompact)
+            AddDriveTableHeaderCell("TYPE", 2, 0, metaStyle, mutedBrush);
+        AddDriveTableHeaderCell("USED", usedCol, 0, metaStyle, mutedBrush);
+        if (!_drivesCompact)
+            AddDriveTableHeaderCell("CAPACITY", capacityCol, 0, metaStyle, mutedBrush);
 
         for (var i = 0; i < _drives.Count; i++)
         {
@@ -206,16 +270,19 @@ public sealed partial class ProjectOrganiserPage : Page
             Grid.SetRow(nameBlock, rowIndex);
             DrivesTable.Children.Add(nameBlock);
 
-            var typeBlock = new TextBlock
+            if (!_drivesCompact)
             {
-                Text = typeLabel,
-                VerticalAlignment = VerticalAlignment.Center,
-                Style = metaStyle,
-                Foreground = mutedBrush
-            };
-            Grid.SetColumn(typeBlock, 2);
-            Grid.SetRow(typeBlock, rowIndex);
-            DrivesTable.Children.Add(typeBlock);
+                var typeBlock = new TextBlock
+                {
+                    Text = typeLabel,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Style = metaStyle,
+                    Foreground = mutedBrush
+                };
+                Grid.SetColumn(typeBlock, 2);
+                Grid.SetRow(typeBlock, rowIndex);
+                DrivesTable.Children.Add(typeBlock);
+            }
 
             var usedBlock = new TextBlock
             {
@@ -228,20 +295,23 @@ public sealed partial class ProjectOrganiserPage : Page
             usedBlock.Foreground = drive.IsReady
                 ? SemanticColorHelper.GetForegroundBrush(SemanticColorHelper.ForDiskUsage(usedPercent))
                 : SemanticColorHelper.GetForegroundBrush(SemanticTone.Attention);
-            Grid.SetColumn(usedBlock, 3);
+            Grid.SetColumn(usedBlock, usedCol);
             Grid.SetRow(usedBlock, rowIndex);
             DrivesTable.Children.Add(usedBlock);
 
-            var capacityBlock = new TextBlock
+            if (!_drivesCompact)
             {
-                Text = capacityText,
-                VerticalAlignment = VerticalAlignment.Center,
-                Style = metaStyle,
-                Foreground = drive.IsReady ? mutedBrush : SemanticColorHelper.GetForegroundBrush(SemanticTone.Attention)
-            };
-            Grid.SetColumn(capacityBlock, 4);
-            Grid.SetRow(capacityBlock, rowIndex);
-            DrivesTable.Children.Add(capacityBlock);
+                var capacityBlock = new TextBlock
+                {
+                    Text = capacityText,
+                    VerticalAlignment = VerticalAlignment.Center,
+                    Style = metaStyle,
+                    Foreground = drive.IsReady ? mutedBrush : SemanticColorHelper.GetForegroundBrush(SemanticTone.Attention)
+                };
+                Grid.SetColumn(capacityBlock, capacityCol);
+                Grid.SetRow(capacityBlock, rowIndex);
+                DrivesTable.Children.Add(capacityBlock);
+            }
 
             var bar = new ProgressBar
             {
@@ -250,7 +320,7 @@ public sealed partial class ProjectOrganiserPage : Page
                 Value = drive.IsReady ? usedPercent : 0,
                 Height = 8,
                 VerticalAlignment = VerticalAlignment.Center,
-                MinWidth = 80,
+                MinWidth = _drivesCompact ? 48 : 80,
                 Foreground = DriveColorHelper.GetBrush(drive.Root),
                 Background = surfaceBrush,
                 BorderBrush = borderBrush,
@@ -259,10 +329,12 @@ public sealed partial class ProjectOrganiserPage : Page
                 IsHitTestVisible = false
             };
             AutomationProperties.SetName(bar, accessibleName);
-            Grid.SetColumn(bar, 5);
+            Grid.SetColumn(bar, barCol);
             Grid.SetRow(bar, rowIndex);
             DrivesTable.Children.Add(bar);
         }
+
+        ApplyDrivesExpandedState();
 
         foreach (var project in _projects)
             project.RefreshTotals(_drives);
@@ -292,6 +364,56 @@ public sealed partial class ProjectOrganiserPage : Page
 
     // ---- Project actions -------------------------------------------------
 
+    private static OrganiserFolderViewModel? GetFolderFromSender(object sender)
+    {
+        if (sender is FrameworkElement { DataContext: OrganiserFolderViewModel folder })
+            return folder;
+
+        DependencyObject? current = sender as DependencyObject;
+        while (current is not null)
+        {
+            if (current is FrameworkElement { DataContext: OrganiserFolderViewModel fromElement })
+                return fromElement;
+
+            if (current is MenuFlyout { Target: FrameworkElement { DataContext: OrganiserFolderViewModel fromTarget } })
+                return fromTarget;
+
+            current = current switch
+            {
+                MenuFlyoutItem item => item.Parent,
+                MenuFlyoutSubItem sub => sub.Parent,
+                _ => null
+            };
+        }
+
+        return null;
+    }
+
+    private static OrganiserProjectViewModel? GetProjectFromSender(object sender)
+    {
+        if (sender is FrameworkElement { DataContext: OrganiserProjectViewModel project })
+            return project;
+
+        DependencyObject? current = sender as DependencyObject;
+        while (current is not null)
+        {
+            if (current is FrameworkElement { DataContext: OrganiserProjectViewModel fromElement })
+                return fromElement;
+
+            if (current is MenuFlyout { Target: FrameworkElement { DataContext: OrganiserProjectViewModel fromTarget } })
+                return fromTarget;
+
+            current = current switch
+            {
+                MenuFlyoutItem item => item.Parent,
+                MenuFlyoutSubItem sub => sub.Parent,
+                _ => null
+            };
+        }
+
+        return null;
+    }
+
     private async void NewProjectButton_Click(object sender, RoutedEventArgs e)
     {
         var name = await PromptForNameAsync("New project", "Create");
@@ -308,7 +430,7 @@ public sealed partial class ProjectOrganiserPage : Page
 
     private async void RenameProject_Click(object sender, RoutedEventArgs e)
     {
-        if ((sender as FrameworkElement)?.DataContext is not OrganiserProjectViewModel project)
+        if (GetProjectFromSender(sender) is not { } project)
             return;
 
         var name = await PromptForNameAsync("Rename project", "Rename", project.Name);
@@ -321,7 +443,7 @@ public sealed partial class ProjectOrganiserPage : Page
 
     private async void RemoveProject_Click(object sender, RoutedEventArgs e)
     {
-        if ((sender as FrameworkElement)?.DataContext is not OrganiserProjectViewModel project)
+        if (GetProjectFromSender(sender) is not { } project)
             return;
 
         var confirmed = await ConfirmAsync(
@@ -341,7 +463,7 @@ public sealed partial class ProjectOrganiserPage : Page
 
     private async void AddFolder_Click(object sender, RoutedEventArgs e)
     {
-        if ((sender as FrameworkElement)?.DataContext is not OrganiserProjectViewModel project)
+        if (GetProjectFromSender(sender) is not { } project)
             return;
 
         if (!project.CanAddFolders)
@@ -491,7 +613,10 @@ public sealed partial class ProjectOrganiserPage : Page
 
     private void FolderType_Click(object sender, RoutedEventArgs e)
     {
-        if (sender is not FrameworkElement { DataContext: OrganiserFolderViewModel folder, Tag: string tag })
+        if (sender is not FrameworkElement { Tag: string tag })
+            return;
+
+        if (GetFolderFromSender(sender) is not { } folder)
             return;
 
         var folderType = Enum.Parse<ProjectFolderType>(tag);
@@ -505,7 +630,7 @@ public sealed partial class ProjectOrganiserPage : Page
 
     private async void RescanFolder_Click(object sender, RoutedEventArgs e)
     {
-        if ((sender as FrameworkElement)?.DataContext is not OrganiserFolderViewModel folder)
+        if (GetFolderFromSender(sender) is not { } folder)
             return;
 
         var project = _projects.FirstOrDefault(p => p.Model.Id == folder.ProjectId);
@@ -517,7 +642,7 @@ public sealed partial class ProjectOrganiserPage : Page
 
     private void ViewFolder_Click(object sender, RoutedEventArgs e)
     {
-        if ((sender as FrameworkElement)?.DataContext is not OrganiserFolderViewModel folder)
+        if (GetFolderFromSender(sender) is not { } folder)
             return;
 
         var project = _projects.FirstOrDefault(p => p.Model.Id == folder.ProjectId);
@@ -543,7 +668,7 @@ public sealed partial class ProjectOrganiserPage : Page
 
     private void SelectFolders_Click(object sender, RoutedEventArgs e)
     {
-        if ((sender as FrameworkElement)?.DataContext is not OrganiserProjectViewModel project)
+        if (GetProjectFromSender(sender) is not { } project)
             return;
 
         foreach (var otherProject in _projects.Where(item => !ReferenceEquals(item, project)))
@@ -557,19 +682,19 @@ public sealed partial class ProjectOrganiserPage : Page
 
     private void SelectAllFolders_Click(object sender, RoutedEventArgs e)
     {
-        if ((sender as FrameworkElement)?.DataContext is OrganiserProjectViewModel project)
+        if (GetProjectFromSender(sender) is { } project)
             project.SelectAllFolders();
     }
 
     private void CancelFolderSelection_Click(object sender, RoutedEventArgs e)
     {
-        if ((sender as FrameworkElement)?.DataContext is OrganiserProjectViewModel project)
+        if (GetProjectFromSender(sender) is { } project)
             project.CancelFolderSelection();
     }
 
     private async void RemoveSelectedFolders_Click(object sender, RoutedEventArgs e)
     {
-        if ((sender as FrameworkElement)?.DataContext is not OrganiserProjectViewModel project)
+        if (GetProjectFromSender(sender) is not { } project)
             return;
 
         var selected = project.GetSelectedFolders();
@@ -618,7 +743,7 @@ public sealed partial class ProjectOrganiserPage : Page
 
     private async void RemoveFolder_Click(object sender, RoutedEventArgs e)
     {
-        if ((sender as FrameworkElement)?.DataContext is not OrganiserFolderViewModel folder)
+        if (GetFolderFromSender(sender) is not { } folder)
             return;
 
         var project = _projects.FirstOrDefault(p => p.Model.Id == folder.ProjectId);
@@ -641,7 +766,7 @@ public sealed partial class ProjectOrganiserPage : Page
 
     private async void RefreshProject_Click(object sender, RoutedEventArgs e)
     {
-        if ((sender as FrameworkElement)?.DataContext is not OrganiserProjectViewModel project)
+        if (GetProjectFromSender(sender) is not { } project)
             return;
 
         var items = project.Folders
@@ -686,7 +811,7 @@ public sealed partial class ProjectOrganiserPage : Page
         if (_isScanning)
             return;
 
-        if ((sender as FrameworkElement)?.DataContext is not OrganiserProjectViewModel project)
+        if (GetProjectFromSender(sender) is not { } project)
             return;
 
         await RunSuggestionsAsync([project.Model], excludeIfAttachedAnywhere: false, statusProject: project);
@@ -1069,10 +1194,14 @@ public sealed partial class ProjectOrganiserPage : Page
         ScanProgressRing.Visibility = scanning ? Visibility.Visible : Visibility.Collapsed;
         CancelScanButton.Visibility = scanning ? Visibility.Visible : Visibility.Collapsed;
         CancelScanButton.IsEnabled = scanning;
-        RefreshAllButton.IsEnabled = !scanning && _projects.Count > 0;
-        SuggestionsAllButton.IsEnabled = !scanning && _projects.Count > 0;
+        var toolsEnabled = !scanning && _projects.Count > 0;
+        RefreshAllButton.IsEnabled = toolsEnabled;
+        SuggestionsAllButton.IsEnabled = toolsEnabled;
+        NarrowRefreshAllButton.IsEnabled = toolsEnabled;
+        NarrowSuggestionsAllButton.IsEnabled = toolsEnabled;
         NewProjectButton.IsEnabled = !scanning;
         FolderSortComboBox.IsEnabled = !scanning;
+        NarrowFolderSortComboBox.IsEnabled = !scanning;
     }
 
     // ---- Dialogs & pickers -----------------------------------------------

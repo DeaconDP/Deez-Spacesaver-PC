@@ -17,6 +17,8 @@ public sealed class OrganiserProjectViewModel : INotifyPropertyChanged
     private bool _isAddingFolders;
     private bool _isFolderScanActive;
     private bool _isSelectingFolders;
+    private bool _suppressFolderListRebuild;
+    private OrganiserFolderSortMode _folderSortMode = OrganiserFolderSortMode.Location;
     private string _statusText = string.Empty;
     private SemanticTone _statusTone = SemanticTone.Informative;
     private readonly HashSet<OrganiserFolderViewModel> _subscribedFolders = [];
@@ -27,12 +29,16 @@ public sealed class OrganiserProjectViewModel : INotifyPropertyChanged
         Folders.CollectionChanged += Folders_CollectionChanged;
         foreach (var folder in model.Folders)
             Folders.Add(new OrganiserFolderViewModel(model.Id, folder));
+        RebuildFolderListItems();
         RefreshTotals(null);
     }
 
     public OrganiserProject Model { get; }
 
     public ObservableCollection<OrganiserFolderViewModel> Folders { get; } = [];
+
+    /// <summary>Display list: folders plus optional tag section headers.</summary>
+    public ObservableCollection<object> FolderListItems { get; } = [];
 
     public bool IsSelectingFolders
     {
@@ -70,16 +76,34 @@ public sealed class OrganiserProjectViewModel : INotifyPropertyChanged
     /// <summary>Reorders the UI folder list without changing persisted model order.</summary>
     public void ApplyFolderSort(OrganiserFolderSortMode mode)
     {
+        _folderSortMode = mode;
+        var showDates = mode is OrganiserFolderSortMode.DateCreated or OrganiserFolderSortMode.DateModified;
+        foreach (var folder in Folders)
+            folder.SetShowDates(showDates);
+
         if (Folders.Count <= 1)
+        {
+            RebuildFolderListItems();
             return;
+        }
 
         var sorted = OrganiserFolderSortHelper
             .OrderByMode(Folders, folder => folder.Model, mode)
             .ToList();
 
-        Folders.Clear();
-        foreach (var folder in sorted)
-            Folders.Add(folder);
+        _suppressFolderListRebuild = true;
+        try
+        {
+            Folders.Clear();
+            foreach (var folder in sorted)
+                Folders.Add(folder);
+        }
+        finally
+        {
+            _suppressFolderListRebuild = false;
+        }
+
+        RebuildFolderListItems();
     }
 
     public string Name => Model.Name;
@@ -276,6 +300,30 @@ public sealed class OrganiserProjectViewModel : INotifyPropertyChanged
         OnPropertyChanged(nameof(AccessibleName));
     }
 
+    private void RebuildFolderListItems()
+    {
+        FolderListItems.Clear();
+
+        if (_folderSortMode != OrganiserFolderSortMode.Tag || Folders.Count == 0)
+        {
+            foreach (var folder in Folders)
+                FolderListItems.Add(folder);
+            return;
+        }
+
+        ProjectFolderType? currentType = null;
+        foreach (var folder in Folders)
+        {
+            if (currentType != folder.Model.FolderType)
+            {
+                currentType = folder.Model.FolderType;
+                FolderListItems.Add(new OrganiserFolderSectionHeader(folder.TypeLabel));
+            }
+
+            FolderListItems.Add(folder);
+        }
+    }
+
     private void Folders_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
         var current = Folders.ToHashSet();
@@ -290,11 +338,16 @@ public sealed class OrganiserProjectViewModel : INotifyPropertyChanged
         {
             folder.PropertyChanged += Folder_PropertyChanged;
             folder.SetSelectionVisible(IsSelectingFolders);
+            folder.SetShowDates(_folderSortMode is OrganiserFolderSortMode.DateCreated
+                or OrganiserFolderSortMode.DateModified);
             _subscribedFolders.Add(folder);
         }
 
         OnPropertyChanged(nameof(CanBeginFolderSelection));
         NotifySelectionChanged();
+
+        if (!_suppressFolderListRebuild)
+            RebuildFolderListItems();
     }
 
     private void Folder_PropertyChanged(object? sender, PropertyChangedEventArgs e)

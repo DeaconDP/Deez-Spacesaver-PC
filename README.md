@@ -29,15 +29,15 @@ First launch may take a few seconds while the app unpacks bundled runtime files 
 
 Requires [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0) and the Windows application development workload (Visual Studio 2022) or Windows App SDK.
 
-Double-click **`run.bat`** to restore packages, rebuild, and launch the app.
+Double-click **`run.bat`** to restore packages, rebuild, and launch the app. A branded progress window runs the update (no terminal). On failure it shows the error until you close it.
 
-Publish only (no launch):
+Publish only (no launch) — same progress window:
 
 ```powershell
 .\publish.ps1
 ```
 
-This writes `PC-Spacesaver.exe` to the project root as a self-contained single file.
+This writes `PC-Spacesaver.exe` to the project root as a self-contained single file. Use `.\publish.ps1 -NoUi` for scripting/CI.
 
 ## Safety
 

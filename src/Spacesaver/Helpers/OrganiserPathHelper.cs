@@ -35,6 +35,25 @@ public static class OrganiserPathHelper
             ? "?"
             : root.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
 
+    /// <summary>Leaf folder name for list display; drive roots keep their drive label.</summary>
+    public static string GetFolderDisplayName(string path)
+    {
+        try
+        {
+            var normalized = NormalizePath(path);
+            var root = GetDriveRoot(normalized);
+            if (!string.IsNullOrEmpty(root) && PathsEqual(normalized, root))
+                return GetDriveLabel(root);
+
+            var name = Path.GetFileName(normalized);
+            return string.IsNullOrEmpty(name) ? GetDriveLabel(root) : name;
+        }
+        catch
+        {
+            return path;
+        }
+    }
+
     /// <summary>True when <paramref name="candidate"/> equals or lives inside <paramref name="parent"/>.</summary>
     public static bool IsSameOrDescendant(string parent, string candidate)
     {

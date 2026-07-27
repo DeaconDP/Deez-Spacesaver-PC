@@ -10,12 +10,15 @@ namespace Spacesaver.ViewModels;
 public sealed class OrganiserFolderViewModel(Guid projectId, OrganiserFolder model) : INotifyPropertyChanged
 {
     private bool _isSelected;
+    private bool _showDates;
     private Visibility _selectionVisibility = Visibility.Collapsed;
 
     public Guid ProjectId { get; } = projectId;
     public OrganiserFolder Model { get; } = model;
 
     public string Path => Model.Path;
+
+    public string DisplayName => OrganiserPathHelper.GetFolderDisplayName(Model.Path);
 
     public string TypeLabel => OrganiserDisplayHelper.GetTypeLabel(Model.FolderType);
     public Brush TypeBrush => OrganiserDisplayHelper.GetTypeBrush(Model.FolderType);
@@ -31,8 +34,12 @@ public sealed class OrganiserFolderViewModel(Guid projectId, OrganiserFolder mod
         ? ByteFormatHelper.FormatBytes(bytes)
         : "—";
 
-    public string MetaText =>
-        $"{DriveLabel} · created {OrganiserDisplayHelper.FormatRelativeAge(Model.CreatedUtc)} · modified {OrganiserDisplayHelper.FormatRelativeAge(Model.ModifiedUtc)}";
+    public string DriveMetaText => DriveLabel;
+
+    public string DatesText =>
+        $"created {OrganiserDisplayHelper.FormatRelativeAge(Model.CreatedUtc)} · modified {OrganiserDisplayHelper.FormatRelativeAge(Model.ModifiedUtc)}";
+
+    public Visibility DatesVisibility => _showDates ? Visibility.Visible : Visibility.Collapsed;
 
     public string StateLabel => OrganiserDisplayHelper.GetStateLabel(Model.LastScanState) ?? string.Empty;
     public Brush StateBrush => OrganiserDisplayHelper.GetStateBrush(Model.LastScanState);
@@ -42,10 +49,13 @@ public sealed class OrganiserFolderViewModel(Guid projectId, OrganiserFolder mod
         : Visibility.Visible;
 
     public string AccessibleName =>
-        $"{TypeLabel} folder {Model.Path}, {SizeText}, created {OrganiserDisplayHelper.FormatRelativeAge(Model.CreatedUtc)}, modified {OrganiserDisplayHelper.FormatRelativeAge(Model.ModifiedUtc)}" +
+        $"{TypeLabel} folder {DisplayName}, {Path}, {SizeText}" +
+        (_showDates
+            ? $", created {OrganiserDisplayHelper.FormatRelativeAge(Model.CreatedUtc)}, modified {OrganiserDisplayHelper.FormatRelativeAge(Model.ModifiedUtc)}"
+            : string.Empty) +
         (StateVisibility == Visibility.Visible ? $", {StateLabel}" : string.Empty);
 
-    public string SelectionAccessibleName => $"Select folder {Model.Path}";
+    public string SelectionAccessibleName => $"Select folder {DisplayName}";
 
     public bool IsSelected
     {
@@ -82,13 +92,25 @@ public sealed class OrganiserFolderViewModel(Guid projectId, OrganiserFolder mod
     public void SetSelectionVisible(bool visible) =>
         SelectionVisibility = visible ? Visibility.Visible : Visibility.Collapsed;
 
+    public void SetShowDates(bool show)
+    {
+        if (_showDates == show)
+            return;
+
+        _showDates = show;
+        OnPropertyChanged(nameof(DatesVisibility));
+        OnPropertyChanged(nameof(AccessibleName));
+    }
+
     public void Refresh()
     {
+        OnPropertyChanged(nameof(DisplayName));
         OnPropertyChanged(nameof(TypeLabel));
         OnPropertyChanged(nameof(TypeBrush));
         OnPropertyChanged(nameof(TypeTintBrush));
         OnPropertyChanged(nameof(SizeText));
-        OnPropertyChanged(nameof(MetaText));
+        OnPropertyChanged(nameof(DriveMetaText));
+        OnPropertyChanged(nameof(DatesText));
         OnPropertyChanged(nameof(StateLabel));
         OnPropertyChanged(nameof(StateBrush));
         OnPropertyChanged(nameof(StateVisibility));

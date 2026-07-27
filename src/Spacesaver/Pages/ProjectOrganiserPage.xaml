@@ -6,7 +6,167 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:controls="using:Spacesaver.Controls"
-    mc:Ignorable="d">
+    xmlns:helpers="using:Spacesaver.Helpers"
+    mc:Ignorable="d"
+    SizeChanged="Page_SizeChanged">
+
+    <Page.Resources>
+        <DataTemplate x:Key="FolderRowTemplate">
+            <Grid
+                Padding="0,8"
+                AutomationProperties.Name="{Binding AccessibleName}"
+                BorderBrush="{StaticResource AppBorderBrush}"
+                BorderThickness="0,0,0,1"
+                ColumnSpacing="12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <CheckBox
+                    VerticalAlignment="Center"
+                    AutomationProperties.Name="{Binding SelectionAccessibleName}"
+                    IsChecked="{Binding IsSelected, Mode=TwoWay}"
+                    Visibility="{Binding SelectionVisibility}" />
+
+                <Border
+                    Grid.Column="1"
+                    MinWidth="72"
+                    Padding="8,2"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Top"
+                    Margin="0,2,0,0"
+                    Background="{Binding TypeTintBrush}"
+                    BorderBrush="{Binding TypeBrush}"
+                    BorderThickness="1"
+                    CornerRadius="2">
+                    <TextBlock
+                        FontSize="12"
+                        FontWeight="SemiBold"
+                        Foreground="{Binding TypeBrush}"
+                        Text="{Binding TypeLabel}"
+                        TextTrimming="CharacterEllipsis" />
+                </Border>
+
+                <StackPanel Grid.Column="2" Spacing="2">
+                    <TextBlock
+                        FontWeight="SemiBold"
+                        Text="{Binding DisplayName}"
+                        TextTrimming="CharacterEllipsis"
+                        ToolTipService.ToolTip="{Binding Path}" />
+                    <TextBlock
+                        Style="{StaticResource MetaTextStyle}"
+                        Text="{Binding Path}"
+                        TextTrimming="CharacterEllipsis"
+                        ToolTipService.ToolTip="{Binding Path}" />
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                        <Ellipse
+                            Width="8"
+                            Height="8"
+                            VerticalAlignment="Center"
+                            Fill="{Binding DriveBrush}" />
+                        <TextBlock
+                            Style="{StaticResource MetaTextStyle}"
+                            Text="{Binding DriveMetaText}" />
+                        <TextBlock
+                            Style="{StaticResource MetaTextStyle}"
+                            Text="{Binding DatesText}"
+                            Visibility="{Binding DatesVisibility}" />
+                        <TextBlock
+                            FontSize="12"
+                            FontWeight="SemiBold"
+                            Foreground="{Binding StateBrush}"
+                            Text="{Binding StateLabel}"
+                            Visibility="{Binding StateVisibility}" />
+                    </StackPanel>
+                </StackPanel>
+
+                <TextBlock
+                    Grid.Column="3"
+                    VerticalAlignment="Center"
+                    FontWeight="SemiBold"
+                    Text="{Binding SizeText}" />
+
+                <Button
+                    Grid.Column="4"
+                    MinWidth="44"
+                    MinHeight="44"
+                    Padding="6"
+                    VerticalAlignment="Center"
+                    AutomationProperties.Name="Folder actions"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    Content="&#xE712;"
+                    FontFamily="Segoe Fluent Icons,Segoe MDL2 Assets"
+                    ToolTipService.ToolTip="Folder actions"
+                    Visibility="{Binding NormalActionsVisibility}">
+                    <Button.Flyout>
+                        <MenuFlyout>
+                            <MenuFlyoutSubItem Text="Set type">
+                                <MenuFlyoutItem
+                                    Click="FolderType_Click"
+                                    Tag="Working"
+                                    Text="Working" />
+                                <MenuFlyoutItem
+                                    Click="FolderType_Click"
+                                    Tag="Parent"
+                                    Text="Parent" />
+                                <MenuFlyoutItem
+                                    Click="FolderType_Click"
+                                    Tag="Asset"
+                                    Text="Assets" />
+                                <MenuFlyoutItem
+                                    Click="FolderType_Click"
+                                    Tag="Backup"
+                                    Text="Backup" />
+                                <MenuFlyoutSeparator />
+                                <MenuFlyoutItem
+                                    Click="FolderType_Click"
+                                    Tag="Junk"
+                                    Text="Junk" />
+                                <MenuFlyoutItem
+                                    Click="FolderType_Click"
+                                    Tag="Template"
+                                    Text="Template" />
+                                <MenuFlyoutItem
+                                    Click="FolderType_Click"
+                                    Tag="Experiment"
+                                    Text="Experiment" />
+                                <MenuFlyoutSeparator />
+                                <MenuFlyoutItem
+                                    Click="FolderType_Click"
+                                    Tag="Other"
+                                    Text="Other" />
+                                <MenuFlyoutItem
+                                    Click="FolderType_Click"
+                                    Tag="Untagged"
+                                    Text="Untagged" />
+                            </MenuFlyoutSubItem>
+                            <MenuFlyoutItem Click="RescanFolder_Click" Text="Rescan size" />
+                            <MenuFlyoutItem Click="ViewFolder_Click" Text="View folder" />
+                            <MenuFlyoutSeparator />
+                            <MenuFlyoutItem Click="RemoveFolder_Click" Text="Remove from project" />
+                        </MenuFlyout>
+                    </Button.Flyout>
+                </Button>
+            </Grid>
+        </DataTemplate>
+
+        <DataTemplate x:Key="FolderSectionHeaderTemplate">
+            <TextBlock
+                Margin="0,12,0,4"
+                Style="{StaticResource MetaTextStyle}"
+                Text="{Binding Title}" />
+        </DataTemplate>
+
+        <helpers:OrganiserFolderItemTemplateSelector
+            x:Key="FolderItemSelector"
+            FolderTemplate="{StaticResource FolderRowTemplate}"
+            HeaderTemplate="{StaticResource FolderSectionHeaderTemplate}" />
+    </Page.Resources>
 
     <Grid
         x:Name="PageRoot"
@@ -22,6 +182,13 @@
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="PageRoot.Padding" Value="{StaticResource PagePaddingWide}" />
+                        <Setter Target="ToolbarSecondaryRow.Visibility" Value="Collapsed" />
+                        <Setter Target="RefreshAllButton.Visibility" Value="Visible" />
+                        <Setter Target="SuggestionsAllButton.Visibility" Value="Visible" />
+                        <Setter Target="SortPanel.Visibility" Value="Visible" />
+                        <Setter Target="NarrowRefreshAllButton.Visibility" Value="Collapsed" />
+                        <Setter Target="NarrowSuggestionsAllButton.Visibility" Value="Collapsed" />
+                        <Setter Target="NarrowSortPanel.Visibility" Value="Collapsed" />
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState x:Name="Narrow">
@@ -31,6 +198,13 @@
                     <VisualState.Setters>
                         <Setter Target="PageRoot.Padding" Value="{StaticResource PagePaddingNarrow}" />
                         <Setter Target="HeaderTitle.FontSize" Value="24" />
+                        <Setter Target="ToolbarSecondaryRow.Visibility" Value="Visible" />
+                        <Setter Target="RefreshAllButton.Visibility" Value="Collapsed" />
+                        <Setter Target="SuggestionsAllButton.Visibility" Value="Collapsed" />
+                        <Setter Target="SortPanel.Visibility" Value="Collapsed" />
+                        <Setter Target="NarrowRefreshAllButton.Visibility" Value="Visible" />
+                        <Setter Target="NarrowSuggestionsAllButton.Visibility" Value="Visible" />
+                        <Setter Target="NarrowSortPanel.Visibility" Value="Visible" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
@@ -57,51 +231,97 @@
         <StackPanel
             x:Name="ToolbarPanel"
             Grid.Row="1"
-            Orientation="Horizontal"
-            Spacing="12">
-            <Button
-                x:Name="NewProjectButton"
-                Click="NewProjectButton_Click"
-                Content="New project"
-                Style="{StaticResource PrimaryActionButtonStyle}" />
-            <Button
-                x:Name="RefreshAllButton"
-                Click="RefreshAllButton_Click"
-                Content="Refresh all sizes"
-                Style="{StaticResource SecondaryActionButtonStyle}" />
-            <Button
-                x:Name="SuggestionsAllButton"
-                Click="SuggestionsAll_Click"
-                Content="Suggestions"
-                Style="{StaticResource SecondaryActionButtonStyle}"
-                ToolTipService.ToolTip="Find folders that may belong on your projects (siblings + name match)" />
-            <Button
-                x:Name="CancelScanButton"
-                Click="CancelScanButton_Click"
-                Content="Cancel scan"
-                Style="{StaticResource SecondaryActionButtonStyle}"
-                Visibility="Collapsed" />
+            Spacing="8">
+            <StackPanel Orientation="Horizontal" Spacing="12">
+                <Button
+                    x:Name="NewProjectButton"
+                    Click="NewProjectButton_Click"
+                    Content="New project"
+                    Style="{StaticResource PrimaryActionButtonStyle}" />
+                <Button
+                    x:Name="RefreshAllButton"
+                    Click="RefreshAllButton_Click"
+                    Content="Refresh all sizes"
+                    Style="{StaticResource SecondaryActionButtonStyle}" />
+                <Button
+                    x:Name="SuggestionsAllButton"
+                    Click="SuggestionsAll_Click"
+                    Content="Suggestions"
+                    Style="{StaticResource SecondaryActionButtonStyle}"
+                    ToolTipService.ToolTip="Find folders that may belong on your projects (siblings + name match)" />
+                <Button
+                    x:Name="CancelScanButton"
+                    Click="CancelScanButton_Click"
+                    Content="Cancel scan"
+                    Style="{StaticResource SecondaryActionButtonStyle}"
+                    Visibility="Collapsed" />
+                <StackPanel
+                    x:Name="SortPanel"
+                    VerticalAlignment="Center"
+                    Orientation="Horizontal"
+                    Spacing="8">
+                    <TextBlock
+                        VerticalAlignment="Center"
+                        Style="{StaticResource MetaTextStyle}"
+                        Text="Sort folders" />
+                    <ComboBox
+                        x:Name="FolderSortComboBox"
+                        MinWidth="120"
+                        VerticalAlignment="Center"
+                        AutomationProperties.Name="Sort folders"
+                        SelectionChanged="FolderSortComboBox_SelectionChanged"
+                        ToolTipService.ToolTip="Sort folders in every project. Your choice is remembered.">
+                        <ComboBoxItem Content="Tag" Tag="Tag" />
+                        <ComboBoxItem Content="Location" Tag="Location" />
+                        <ComboBoxItem Content="Size" Tag="Size" />
+                        <ComboBoxItem Content="Date created" Tag="DateCreated" />
+                        <ComboBoxItem Content="Date last modified" Tag="DateModified" />
+                    </ComboBox>
+                </StackPanel>
+            </StackPanel>
+
             <StackPanel
-                VerticalAlignment="Center"
+                x:Name="ToolbarSecondaryRow"
                 Orientation="Horizontal"
-                Spacing="8">
-                <TextBlock
+                Spacing="12"
+                Visibility="Collapsed">
+                <Button
+                    x:Name="NarrowRefreshAllButton"
+                    Click="RefreshAllButton_Click"
+                    Content="Refresh all sizes"
+                    Style="{StaticResource SecondaryActionButtonStyle}"
+                    Visibility="Collapsed" />
+                <Button
+                    x:Name="NarrowSuggestionsAllButton"
+                    Click="SuggestionsAll_Click"
+                    Content="Suggestions"
+                    Style="{StaticResource SecondaryActionButtonStyle}"
+                    ToolTipService.ToolTip="Find folders that may belong on your projects (siblings + name match)"
+                    Visibility="Collapsed" />
+                <StackPanel
+                    x:Name="NarrowSortPanel"
                     VerticalAlignment="Center"
-                    Style="{StaticResource MetaTextStyle}"
-                    Text="Sort folders" />
-                <ComboBox
-                    x:Name="FolderSortComboBox"
-                    MinWidth="120"
-                    VerticalAlignment="Center"
-                    AutomationProperties.Name="Sort folders"
-                    SelectionChanged="FolderSortComboBox_SelectionChanged"
-                    ToolTipService.ToolTip="Sort folders in every project. Your choice is remembered.">
-                    <ComboBoxItem Content="Tag" Tag="Tag" />
-                    <ComboBoxItem Content="Location" Tag="Location" />
-                    <ComboBoxItem Content="Size" Tag="Size" />
-                    <ComboBoxItem Content="Date created" Tag="DateCreated" />
-                    <ComboBoxItem Content="Date last modified" Tag="DateModified" />
-                </ComboBox>
+                    Orientation="Horizontal"
+                    Spacing="8"
+                    Visibility="Collapsed">
+                    <TextBlock
+                        VerticalAlignment="Center"
+                        Style="{StaticResource MetaTextStyle}"
+                        Text="Sort folders" />
+                    <ComboBox
+                        x:Name="NarrowFolderSortComboBox"
+                        MinWidth="120"
+                        VerticalAlignment="Center"
+                        AutomationProperties.Name="Sort folders"
+                        SelectionChanged="NarrowFolderSortComboBox_SelectionChanged"
+                        ToolTipService.ToolTip="Sort folders in every project. Your choice is remembered.">
+                        <ComboBoxItem Content="Tag" Tag="Tag" />
+                        <ComboBoxItem Content="Location" Tag="Location" />
+                        <ComboBoxItem Content="Size" Tag="Size" />
+                        <ComboBoxItem Content="Date created" Tag="DateCreated" />
+                        <ComboBoxItem Content="Date last modified" Tag="DateModified" />
+                    </ComboBox>
+                </StackPanel>
             </StackPanel>
         </StackPanel>
 
@@ -125,8 +345,45 @@
         </Grid>
 
         <StackPanel Grid.Row="3" Spacing="6">
-            <TextBlock Style="{StaticResource MetaTextStyle}" Text="DRIVES" />
-            <Grid x:Name="DrivesTable" ColumnSpacing="12" RowSpacing="6" />
+            <Button
+                x:Name="DrivesToggleButton"
+                Padding="0"
+                HorizontalAlignment="Stretch"
+                HorizontalContentAlignment="Stretch"
+                Background="Transparent"
+                BorderThickness="0"
+                Click="DrivesToggleButton_Click"
+                AutomationProperties.Name="Toggle drives panel">
+                <Grid ColumnSpacing="12">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock
+                        VerticalAlignment="Center"
+                        Style="{StaticResource MetaTextStyle}"
+                        Text="DRIVES" />
+                    <TextBlock
+                        x:Name="DrivesSummaryText"
+                        Grid.Column="1"
+                        VerticalAlignment="Center"
+                        Style="{StaticResource MetaTextStyle}"
+                        Text=""
+                        TextTrimming="CharacterEllipsis" />
+                    <FontIcon
+                        x:Name="DrivesChevron"
+                        Grid.Column="2"
+                        FontSize="12"
+                        Foreground="{StaticResource AppMutedBrush}"
+                        Glyph="&#xE70D;" />
+                </Grid>
+            </Button>
+            <Grid
+                x:Name="DrivesTable"
+                ColumnSpacing="12"
+                RowSpacing="6"
+                Visibility="Collapsed" />
         </StackPanel>
 
         <StackPanel
@@ -164,13 +421,40 @@
                         IsExpanded="{Binding IsExpanded, Mode=TwoWay}">
                         <Expander.Header>
                             <Grid
+                                x:Name="ProjectHeaderGrid"
                                 Padding="0,12"
                                 HorizontalAlignment="Stretch"
                                 ColumnSpacing="12"
-                                RowSpacing="8">
+                                RowSpacing="4">
+                                <VisualStateManager.VisualStateGroups>
+                                    <VisualStateGroup x:Name="HeaderSizeStates">
+                                        <VisualState x:Name="HeaderWide">
+                                            <VisualState.StateTriggers>
+                                                <AdaptiveTrigger MinWindowWidth="900" />
+                                            </VisualState.StateTriggers>
+                                            <VisualState.Setters>
+                                                <Setter Target="HeaderSizeBlock.(Grid.Row)" Value="0" />
+                                                <Setter Target="HeaderSizeBlock.(Grid.Column)" Value="1" />
+                                                <Setter Target="HeaderBusyRing.(Grid.Row)" Value="0" />
+                                                <Setter Target="HeaderBusyRing.(Grid.Column)" Value="2" />
+                                            </VisualState.Setters>
+                                        </VisualState>
+                                        <VisualState x:Name="HeaderNarrow">
+                                            <VisualState.StateTriggers>
+                                                <AdaptiveTrigger MinWindowWidth="0" />
+                                            </VisualState.StateTriggers>
+                                            <VisualState.Setters>
+                                                <Setter Target="HeaderSizeBlock.(Grid.Row)" Value="1" />
+                                                <Setter Target="HeaderSizeBlock.(Grid.Column)" Value="0" />
+                                                <Setter Target="HeaderBusyRing.(Grid.Row)" Value="1" />
+                                                <Setter Target="HeaderBusyRing.(Grid.Column)" Value="1" />
+                                            </VisualState.Setters>
+                                        </VisualState>
+                                    </VisualStateGroup>
+                                </VisualStateManager.VisualStateGroups>
+
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="Auto" />
                                     <ColumnDefinition Width="Auto" />
                                 </Grid.ColumnDefinitions>
@@ -178,30 +462,31 @@
                                     <RowDefinition Height="Auto" />
                                     <RowDefinition Height="Auto" />
                                     <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
                                 </Grid.RowDefinitions>
 
-                                <TextBlock
-                                    VerticalAlignment="Center"
-                                    FontSize="16"
-                                    FontWeight="SemiBold"
-                                    Text="{Binding Name}"
-                                    TextTrimming="CharacterEllipsis" />
+                                <StackPanel Spacing="2">
+                                    <TextBlock
+                                        FontSize="16"
+                                        FontWeight="SemiBold"
+                                        Text="{Binding Name}"
+                                        TextTrimming="CharacterEllipsis" />
+                                    <TextBlock
+                                        Style="{StaticResource MetaTextStyle}"
+                                        Text="{Binding FolderCountText}" />
+                                </StackPanel>
 
                                 <TextBlock
+                                    x:Name="HeaderSizeBlock"
                                     Grid.Column="1"
-                                    VerticalAlignment="Center"
-                                    Style="{StaticResource MetaTextStyle}"
-                                    Text="{Binding FolderCountText}" />
-
-                                <TextBlock
-                                    Grid.Column="2"
                                     VerticalAlignment="Center"
                                     FontWeight="SemiBold"
                                     Foreground="{StaticResource AppTextBrush}"
                                     Text="{Binding TotalSizeText}" />
 
                                 <ProgressRing
-                                    Grid.Column="3"
+                                    x:Name="HeaderBusyRing"
+                                    Grid.Column="2"
                                     Width="16"
                                     Height="16"
                                     VerticalAlignment="Center"
@@ -209,14 +494,14 @@
                                     Visibility="{Binding BusyVisibility}" />
 
                                 <controls:SegmentedBar
-                                    Grid.Row="1"
-                                    Grid.ColumnSpan="4"
+                                    Grid.Row="2"
+                                    Grid.ColumnSpan="3"
                                     Height="10"
                                     Segments="{Binding Segments}" />
 
                                 <TextBlock
-                                    Grid.Row="2"
-                                    Grid.ColumnSpan="4"
+                                    Grid.Row="3"
+                                    Grid.ColumnSpan="3"
                                     Style="{StaticResource MetaTextStyle}"
                                     Text="{Binding DriveBreakdownText}"
                                     TextWrapping="WrapWholeWords" />
@@ -224,150 +509,6 @@
                         </Expander.Header>
 
                         <StackPanel Padding="0,4,0,12" Spacing="8">
-                            <TextBlock
-                                Style="{StaticResource BodyTextStyle}"
-                                Text="No folders attached yet. Use Add folders to pick one or more paths from any drive (Ctrl/Shift-click) — tag them as Working, Parent, Assets, Backup, Junk, Template, Experiment, or Other later."
-                                Visibility="{Binding EmptyHintVisibility}" />
-
-                            <ItemsControl ItemsSource="{Binding Folders}">
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Grid
-                                            Padding="0,8"
-                                            AutomationProperties.Name="{Binding AccessibleName}"
-                                            BorderBrush="{StaticResource AppBorderBrush}"
-                                            BorderThickness="0,0,0,1"
-                                            ColumnSpacing="12">
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto" />
-                                                <ColumnDefinition Width="76" />
-                                                <ColumnDefinition Width="*" />
-                                                <ColumnDefinition Width="Auto" />
-                                                <ColumnDefinition Width="Auto" />
-                                            </Grid.ColumnDefinitions>
-
-                                            <CheckBox
-                                                VerticalAlignment="Center"
-                                                AutomationProperties.Name="{Binding SelectionAccessibleName}"
-                                                IsChecked="{Binding IsSelected, Mode=TwoWay}"
-                                                Visibility="{Binding SelectionVisibility}" />
-
-                                            <Border
-                                                Grid.Column="1"
-                                                Padding="8,2"
-                                                HorizontalAlignment="Left"
-                                                VerticalAlignment="Top"
-                                                Margin="0,2,0,0"
-                                                Background="{Binding TypeTintBrush}"
-                                                BorderBrush="{Binding TypeBrush}"
-                                                BorderThickness="1"
-                                                CornerRadius="2">
-                                                <TextBlock
-                                                    FontSize="12"
-                                                    FontWeight="SemiBold"
-                                                    Foreground="{Binding TypeBrush}"
-                                                    Text="{Binding TypeLabel}" />
-                                            </Border>
-
-                                            <StackPanel Grid.Column="2" Spacing="2">
-                                                <TextBlock
-                                                    Text="{Binding Path}"
-                                                    TextTrimming="CharacterEllipsis"
-                                                    ToolTipService.ToolTip="{Binding Path}" />
-                                                <StackPanel Orientation="Horizontal" Spacing="8">
-                                                    <Ellipse
-                                                        Width="8"
-                                                        Height="8"
-                                                        VerticalAlignment="Center"
-                                                        Fill="{Binding DriveBrush}" />
-                                                    <TextBlock
-                                                        Style="{StaticResource MetaTextStyle}"
-                                                        Text="{Binding MetaText}" />
-                                                    <TextBlock
-                                                        FontSize="12"
-                                                        FontWeight="SemiBold"
-                                                        Foreground="{Binding StateBrush}"
-                                                        Text="{Binding StateLabel}"
-                                                        Visibility="{Binding StateVisibility}" />
-                                                </StackPanel>
-                                            </StackPanel>
-
-                                            <TextBlock
-                                                Grid.Column="3"
-                                                VerticalAlignment="Center"
-                                                FontWeight="SemiBold"
-                                                Text="{Binding SizeText}" />
-
-                                            <Button
-                                                Grid.Column="4"
-                                                Padding="6"
-                                                VerticalAlignment="Center"
-                                                AutomationProperties.Name="Folder actions"
-                                                Background="Transparent"
-                                                BorderThickness="0"
-                                                Content="&#xE712;"
-                                                FontFamily="Segoe Fluent Icons,Segoe MDL2 Assets"
-                                                ToolTipService.ToolTip="Folder actions"
-                                                Visibility="{Binding NormalActionsVisibility}">
-                                                <Button.Flyout>
-                                                    <MenuFlyout>
-                                                        <MenuFlyoutSubItem Text="Set type">
-                                                            <MenuFlyoutItem
-                                                                Click="FolderType_Click"
-                                                                Tag="Untagged"
-                                                                Text="Untagged" />
-                                                            <MenuFlyoutItem
-                                                                Click="FolderType_Click"
-                                                                Tag="Working"
-                                                                Text="Working" />
-                                                            <MenuFlyoutItem
-                                                                Click="FolderType_Click"
-                                                                Tag="Parent"
-                                                                Text="Parent" />
-                                                            <MenuFlyoutItem
-                                                                Click="FolderType_Click"
-                                                                Tag="Asset"
-                                                                Text="Assets" />
-                                                            <MenuFlyoutItem
-                                                                Click="FolderType_Click"
-                                                                Tag="Backup"
-                                                                Text="Backup" />
-                                                            <MenuFlyoutItem
-                                                                Click="FolderType_Click"
-                                                                Tag="Junk"
-                                                                Text="Junk" />
-                                                            <MenuFlyoutItem
-                                                                Click="FolderType_Click"
-                                                                Tag="Template"
-                                                                Text="Template" />
-                                                            <MenuFlyoutItem
-                                                                Click="FolderType_Click"
-                                                                Tag="Experiment"
-                                                                Text="Experiment" />
-                                                            <MenuFlyoutItem
-                                                                Click="FolderType_Click"
-                                                                Tag="Other"
-                                                                Text="Other" />
-                                                        </MenuFlyoutSubItem>
-                                                        <MenuFlyoutItem Click="RescanFolder_Click" Text="Rescan size" />
-                                                        <MenuFlyoutItem Click="ViewFolder_Click" Text="View folder" />
-                                                        <MenuFlyoutSeparator />
-                                                        <MenuFlyoutItem Click="RemoveFolder_Click" Text="Remove from project" />
-                                                    </MenuFlyout>
-                                                </Button.Flyout>
-                                            </Button>
-                                        </Grid>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-
-                            <TextBlock
-                                FontSize="12"
-                                Foreground="{Binding StatusBrush}"
-                                Text="{Binding StatusText}"
-                                TextWrapping="WrapWholeWords"
-                                Visibility="{Binding StatusVisibility}" />
-
                             <StackPanel
                                 Orientation="Horizontal"
                                 Spacing="8"
@@ -377,36 +518,34 @@
                                     AutomationProperties.Name="{Binding AddFoldersButtonText}"
                                     Content="{Binding AddFoldersButtonText}"
                                     IsEnabled="{Binding CanAddFolders}"
-                                    Style="{StaticResource SecondaryActionButtonStyle}"
+                                    Style="{StaticResource PrimaryActionButtonStyle}"
                                     ToolTipService.ToolTip="Select one or more folders (Ctrl/Shift-click) — tag Working, Parent, Assets, Backup, Junk, Template, Experiment, or Other later" />
                                 <Button
-                                    Click="SuggestionsProject_Click"
-                                    Content="Suggestions"
+                                    AutomationProperties.Name="More project actions"
+                                    Content="More"
                                     IsEnabled="{Binding ActionsEnabled}"
                                     Style="{StaticResource SecondaryActionButtonStyle}"
-                                    ToolTipService.ToolTip="Find folders that may belong on this project" />
-                                <Button
-                                    Click="RefreshProject_Click"
-                                    Content="Refresh sizes"
-                                    IsEnabled="{Binding ActionsEnabled}"
-                                    Style="{StaticResource SecondaryActionButtonStyle}" />
-                                <Button
-                                    Click="RenameProject_Click"
-                                    Content="Rename"
-                                    IsEnabled="{Binding ActionsEnabled}"
-                                    Style="{StaticResource SecondaryActionButtonStyle}" />
-                                <Button
-                                    Click="RemoveProject_Click"
-                                    Content="Remove"
-                                    IsEnabled="{Binding ActionsEnabled}"
-                                    Style="{StaticResource SecondaryActionButtonStyle}"
-                                    ToolTipService.ToolTip="Removes the project from the organiser only — no files are touched" />
-                                <Button
-                                    Click="SelectFolders_Click"
-                                    Content="Select folders"
-                                    IsEnabled="{Binding CanBeginFolderSelection}"
-                                    Style="{StaticResource SecondaryActionButtonStyle}"
-                                    ToolTipService.ToolTip="Select multiple folder associations to remove from this project" />
+                                    ToolTipService.ToolTip="More project actions">
+                                    <Button.Flyout>
+                                        <MenuFlyout>
+                                            <MenuFlyoutItem
+                                                Click="SuggestionsProject_Click"
+                                                Text="Suggestions"
+                                                ToolTipService.ToolTip="Find folders that may belong on this project" />
+                                            <MenuFlyoutItem Click="RefreshProject_Click" Text="Refresh sizes" />
+                                            <MenuFlyoutItem Click="RenameProject_Click" Text="Rename" />
+                                            <MenuFlyoutItem
+                                                Click="SelectFolders_Click"
+                                                Text="Select folders"
+                                                ToolTipService.ToolTip="Select multiple folder associations to remove from this project" />
+                                            <MenuFlyoutSeparator />
+                                            <MenuFlyoutItem
+                                                Click="RemoveProject_Click"
+                                                Text="Remove"
+                                                ToolTipService.ToolTip="Removes the project from the organiser only — no files are touched" />
+                                        </MenuFlyout>
+                                    </Button.Flyout>
+                                </Button>
                             </StackPanel>
 
                             <StackPanel
@@ -434,6 +573,22 @@
                                     Content="Cancel"
                                     Style="{StaticResource SecondaryActionButtonStyle}" />
                             </StackPanel>
+
+                            <TextBlock
+                                Style="{StaticResource BodyTextStyle}"
+                                Text="No folders attached yet. Use Add folders to pick one or more paths from any drive (Ctrl/Shift-click) — tag them as Working, Parent, Assets, Backup, Junk, Template, Experiment, or Other later."
+                                Visibility="{Binding EmptyHintVisibility}" />
+
+                            <ItemsControl
+                                ItemTemplateSelector="{StaticResource FolderItemSelector}"
+                                ItemsSource="{Binding FolderListItems}" />
+
+                            <TextBlock
+                                FontSize="12"
+                                Foreground="{Binding StatusBrush}"
+                                Text="{Binding StatusText}"
+                                TextWrapping="WrapWholeWords"
+                                Visibility="{Binding StatusVisibility}" />
                         </StackPanel>
                     </Expander>
                 </DataTemplate>

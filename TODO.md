@@ -19,6 +19,7 @@
 - [x] Suggestions (siblings + shallow name match) — all projects + per-project; review dialog to add
 - [x] Select and remove multiple folder associations per project with one confirmation
 - [x] Add more project folders while size scans run; queue their measurements into the active scan
+- [x] UX overhaul: collapsible Drives strip, primary+More project actions, name-first folder rows, tag section headers, narrow toolbar reflow
 
 ## Responsive redesign
 
@@ -35,3 +36,4 @@
 
 - [x] Rebuild the Windows app icon with multi-resolution frames and reliable runtime loading
 - [x] Project Organiser DRIVES legend: graphic table with used % and per-drive usage bars
+- [x] Replace run.bat terminal with branded installer/updater progress window (`run.ps1`, `tools/LaunchProgressWindow.ps1`)

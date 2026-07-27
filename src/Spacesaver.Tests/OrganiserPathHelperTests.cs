@@ -51,4 +51,13 @@ public class OrganiserPathHelperTests
     {
         Assert.Equal("D:", OrganiserPathHelper.GetDriveLabel(@"D:\"));
     }
+
+    [Theory]
+    [InlineData(@"C:\Projects\Alpha\Renders", "Renders")]
+    [InlineData(@"D:\Assets", "Assets")]
+    [InlineData(@"C:\", "C:")]
+    public void GetFolderDisplayName_UsesLeafOrDriveLabel(string path, string expected)
+    {
+        Assert.Equal(expected, OrganiserPathHelper.GetFolderDisplayName(path));
+    }
 }
