@@ -1,7 +1,7 @@
 # Deez Spacesaver PC
 
 <p align="center">
-  <img src="https://cdn.jsdelivr.net/gh/DeaconDP/Deez-Spacesaver-PC@PLACEHOLDER/docs/screenshots/hero.png" alt="Deez Spacesaver PC" width="720" />
+  <img src="https://cdn.jsdelivr.net/gh/DeaconDP/Deez-Spacesaver-PC@0481fb5e2bc4285004ea85bdfdebdfdaba6204c9/docs/screenshots/hero.png" alt="Deez Spacesaver PC" width="720" />
 </p>
 
 Guided Windows disk cleanup — scan, recommend, and clean safely. No install, no separate .NET download.
