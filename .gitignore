@@ -49,3 +49,6 @@ _ReSharper*/
 
 *.tmp
 *.temp
+
+# macOS Finder metadata
+.DS_Store
